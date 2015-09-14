@@ -2,6 +2,8 @@
 // Licensed under the MIT License <LICENSE.md>
 //! Mappings for the contents of d3d12.h
 
+#![cfg(windows)]
+
 extern crate winapi;
 
 use winapi::*;
