@@ -5,7 +5,6 @@
 extern crate winapi;
 use winapi::*;
 extern "system" {
-  pub static IID_ID3D10Blob: IID;
   pub static IID_ID3D12CommandAllocator: IID;
   pub static IID_ID3D12CommandList: IID;
   pub static IID_ID3D12CommandQueue: IID;
