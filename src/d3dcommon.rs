@@ -23,7 +23,7 @@ ENUM!{ enum D3D_FEATURE_LEVEL {
     D3D_FEATURE_LEVEL_11_0 = 0xb000,
     D3D_FEATURE_LEVEL_11_1 = 0xb100,
     D3D_FEATURE_LEVEL_12_0  = 0xc000,
-    D3D_FEATURE_LEVEL_12_1  = 0xc100,
+    D3D_FEATURE_LEVEL_12_1  = 0xc100
 }}
 
 #[repr(i32)] #[derive(Copy, Clone, Debug)] #[allow(unused_qualifications)]
