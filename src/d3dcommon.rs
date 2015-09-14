@@ -14,7 +14,8 @@ pub enum D3D_DRIVER_TYPE {
 
 pub use self::D3D_DRIVER_TYPE::*;
 
-ENUM!{ enum D3D_FEATURE_LEVEL {
+#[repr(i32)] #[derive(Copy, Clone, Debug)] #[allow(unused_qualifications)]
+pub enum D3D_FEATURE_LEVEL {
     D3D_FEATURE_LEVEL_9_1 = 0x9100,
     D3D_FEATURE_LEVEL_9_2 = 0x9200,
     D3D_FEATURE_LEVEL_9_3 = 0x9300,
@@ -24,7 +25,9 @@ ENUM!{ enum D3D_FEATURE_LEVEL {
     D3D_FEATURE_LEVEL_11_1 = 0xb100,
     D3D_FEATURE_LEVEL_12_0  = 0xc000,
     D3D_FEATURE_LEVEL_12_1  = 0xc100
-}}
+}
+
+pub use self::D3D_FEATURE_LEVEL::*;
 
 #[repr(i32)] #[derive(Copy, Clone, Debug)] #[allow(unused_qualifications)]
 pub enum D3D_PRIMITIVE_TOPOLOGY {
