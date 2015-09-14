@@ -2,5 +2,5 @@
 // Licensed under the MIT License <LICENSE.md>
 extern crate build;
 fn main() {
-    build::link("dxguid", false)
+    build::link("d3d12", false)
 }
