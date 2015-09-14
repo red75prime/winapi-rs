@@ -1,5 +1,5 @@
 [package]
-name = "d3d12_sys"
+name = "d3d12-sys"
 version = "0.0.1"
 authors = ["Peter Atashian <retep998@gmail.com>"]
 description = "FFI bindings to d3d12."
@@ -11,8 +11,11 @@ license = "MIT"
 build = "build.rs"
 links = "d3d12"
 
+[lib]
+name = "d3d12"
+
 [dependencies]
 winapi = { version = "*", path = "../.." }
-libc = "*"
+
 [build-dependencies]
 winapi-build = { version = "*", path = "../../build" }
