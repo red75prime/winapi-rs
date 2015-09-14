@@ -49,55 +49,41 @@ pub struct DXGI_MATRIX_3X2_F {
 RIDL!(
 interface IDXGIDecodeSwapChain(IDXGIDecodeSwapChainVtbl): IUnknown(IUnknownVtbl) {
     fn PresentBuffer(
-        &mut self, This: *mut ::IDXGIDecodeSwapChain, BufferToPresent: ::UINT,
-        SyncInterval: ::UINT, Flags: ::UINT
+        &mut self, BufferToPresent: ::UINT, SyncInterval: ::UINT, Flags: ::UINT
     ) -> ::HRESULT,
-    fn SetSourceRect(
-        &mut self, This: *mut ::IDXGIDecodeSwapChain, pRect: *const ::RECT
-    ) -> ::HRESULT,
-    fn SetTargetRect(
-        &mut self, This: *mut ::IDXGIDecodeSwapChain, pRect: *const ::RECT
-    ) -> ::HRESULT,
-    fn SetDestSize(
-        &mut self, This: *mut ::IDXGIDecodeSwapChain, Width: ::UINT, Height: ::UINT
-    ) -> ::HRESULT,
-    fn GetSourceRect(
-        &mut self, This: *mut ::IDXGIDecodeSwapChain, pRect: *mut ::RECT
-    ) -> ::HRESULT,
-    fn GetTargetRect(
-        &mut self, This: *mut ::IDXGIDecodeSwapChain, pRect: *mut ::RECT
-    ) -> ::HRESULT,
+    fn SetSourceRect(&mut self, pRect: *const ::RECT) -> ::HRESULT,
+    fn SetTargetRect(&mut self, pRect: *const ::RECT) -> ::HRESULT,
+    fn SetDestSize(&mut self, Width: ::UINT, Height: ::UINT) -> ::HRESULT,
+    fn GetSourceRect(&mut self, pRect: *mut ::RECT) -> ::HRESULT,
+    fn GetTargetRect(&mut self, pRect: *mut ::RECT) -> ::HRESULT,
     fn GetDestSize(
-        &mut self, This: *mut ::IDXGIDecodeSwapChain, pWidth: *mut ::UINT, pHeight: *mut ::UINT
+        &mut self, pWidth: *mut ::UINT, pHeight: *mut ::UINT
     ) -> ::HRESULT,
     fn SetColorSpace(
-        &mut self, This: *mut ::IDXGIDecodeSwapChain,
-        ColorSpace: ::DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS
+        &mut self, ColorSpace: ::DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS
     ) -> ::HRESULT,
-    fn GetColorSpace(
-        &mut self, This: *mut ::IDXGIDecodeSwapChain
-    ) -> ::DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS
+    fn GetColorSpace(&mut self) -> ::DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS
 });
 
 RIDL!(
 interface IDXGIDevice3(IDXGIDevice3Vtbl): IDXGIDevice2(IDXGIDevice2Vtbl) {
-    fn Trim(&mut self, This: *mut ::IDXGIDevice3) -> ()
+    fn Trim(&mut self) -> ()
 });
 
 RIDL!(
 interface IDXGIFactory3(IDXGIFactory3Vtbl): IDXGIFactory2(IDXGIFactory2Vtbl) {
-    fn GetCreationFlags(&mut self, This: *mut ::IDXGIFactory3) -> ::UINT
+    fn GetCreationFlags(&mut self) -> ::UINT
 });
 
 RIDL!(
 interface IDXGIFactoryMedia(IDXGIFactoryMediaVtbl): IUnknown(IUnknownVtbl) {
     fn CreateSwapChainForCompositionSurfaceHandle(
-        &mut self, This: *mut ::IDXGIFactoryMedia, pDevice: *mut ::IUnknown, hSurface: ::HANDLE,
+        &mut self, pDevice: *mut ::IUnknown, hSurface: ::HANDLE,
         pDesc: *const ::DXGI_SWAP_CHAIN_DESC1, pRestrictToOutput: *mut ::IDXGIOutput,
         ppSwapChain: *mut *mut ::IDXGISwapChain1
     ) -> ::HRESULT,
     fn CreateDecodeSwapChainForCompositionSurfaceHandle(
-        &mut self, This: *mut ::IDXGIFactoryMedia, pDevice: *mut ::IUnknown, hSurface: ::HANDLE,
+        &mut self, pDevice: *mut ::IUnknown, hSurface: ::HANDLE,
         pDesc: *mut ::DXGI_DECODE_SWAP_CHAIN_DESC, pYuvDecodeBuffers: *mut ::IDXGIResource,
         pRestrictToOutput: *mut ::IDXGIOutput, ppSwapChain: *mut *mut ::IDXGIDecodeSwapChain
     ) -> ::HRESULT
@@ -105,53 +91,43 @@ interface IDXGIFactoryMedia(IDXGIFactoryMediaVtbl): IUnknown(IUnknownVtbl) {
 
 RIDL!(
 interface IDXGIOutput2(IDXGIOutput2Vtbl): IDXGIOutput1(IDXGIOutput1Vtbl) {
-    fn SupportsOverlays(&mut self, This: *mut ::IDXGIOutput2) -> ::BOOL
+    fn SupportsOverlays(&mut self) -> ::BOOL
 });
 
 RIDL!(
 interface IDXGIOutput3(IDXGIOutput3Vtbl): IDXGIOutput2(IDXGIOutput2Vtbl) {
     fn CheckOverlaySupport(
-        &mut self, This: *mut ::IDXGIOutput3, EnumFormat: ::DXGI_FORMAT,
-        pConcernedDevice: *mut ::IUnknown, pFlags: *mut ::UINT
+        &mut self, EnumFormat: ::DXGI_FORMAT, pConcernedDevice: *mut ::IUnknown,
+        pFlags: *mut ::UINT
     ) -> ::HRESULT
 });
 
 RIDL!(
 interface IDXGISwapChain2(IDXGISwapChain2Vtbl): IDXGISwapChain1(IDXGISwapChain1Vtbl) {
-    fn SetSourceSize(
-        &mut self, This: *mut ::IDXGISwapChain2, Width: ::UINT, Height: ::UINT
-    ) -> ::HRESULT,
+    fn SetSourceSize(&mut self, Width: ::UINT, Height: ::UINT) -> ::HRESULT,
     fn GetSourceSize(
-        &mut self, This: *mut ::IDXGISwapChain2, pWidth: *mut ::UINT, pHeight: *mut ::UINT
+        &mut self, pWidth: *mut ::UINT, pHeight: *mut ::UINT
     ) -> ::HRESULT,
-    fn SetMaximumFrameLatency(
-        &mut self, This: *mut ::IDXGISwapChain2, MaxLatency: ::UINT
-    ) -> ::HRESULT,
-    fn GetMaximumFrameLatency(
-        &mut self, This: *mut ::IDXGISwapChain2, pMaxLatency: *mut ::UINT
-    ) -> ::HRESULT,
-    fn GetFrameLatencyWaitableObject(
-        &mut self, This: *mut ::IDXGISwapChain2
-    ) -> ::HANDLE,
+    fn SetMaximumFrameLatency(&mut self, MaxLatency: ::UINT) -> ::HRESULT,
+    fn GetMaximumFrameLatency(&mut self, pMaxLatency: *mut ::UINT) -> ::HRESULT,
+    fn GetFrameLatencyWaitableObject(&mut self) -> ::HANDLE,
     fn SetMatrixTransform(
-        &mut self, This: *mut ::IDXGISwapChain2, pMatrix: *const ::DXGI_MATRIX_3X2_F
+        &mut self, pMatrix: *const ::DXGI_MATRIX_3X2_F
     ) -> ::HRESULT,
     fn GetMatrixTransform(
-        &mut self, This: *mut ::IDXGISwapChain2, pMatrix: *mut ::DXGI_MATRIX_3X2_F
+        &mut self, pMatrix: *mut ::DXGI_MATRIX_3X2_F
     ) -> ::HRESULT
 });
 
 RIDL!(
 interface IDXGISwapChainMedia(IDXGISwapChainMediaVtbl): IUnknown(IUnknownVtbl) {
     fn GetFrameStatisticsMedia(
-        &mut self, This: *mut ::IDXGISwapChainMedia, pStats: *mut ::DXGI_FRAME_STATISTICS_MEDIA
+        &mut self, pStats: *mut ::DXGI_FRAME_STATISTICS_MEDIA
     ) -> ::HRESULT,
-    fn SetPresentDuration(
-        &mut self, This: *mut ::IDXGISwapChainMedia, Duration: ::UINT
-    ) -> ::HRESULT,
+    fn SetPresentDuration(&mut self, Duration: ::UINT) -> ::HRESULT,
     fn CheckPresentDurationSupport(
-        &mut self, This: *mut ::IDXGISwapChainMedia, DesiredPresentDuration: ::UINT,
-        pClosestSmallerPresentDuration: *mut ::UINT, pClosestLargerPresentDuration: *mut ::UINT
+        &mut self, DesiredPresentDuration: ::UINT, pClosestSmallerPresentDuration: *mut ::UINT,
+        pClosestLargerPresentDuration: *mut ::UINT
     ) -> ::HRESULT
 });
 
