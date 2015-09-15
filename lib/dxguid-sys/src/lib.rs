@@ -1,11 +1,32 @@
 // Copyright © 2015, Peter Atashian
 // Licensed under the MIT License <LICENSE.md>
 //! FFI bindings to dxguid.
-#![no_std]
-#![experimental]
+
 extern crate winapi;
 use winapi::*;
 extern "system" {
+  pub static IID_ID3D12CommandAllocator: IID;
+  pub static IID_ID3D12CommandList: IID;
+  pub static IID_ID3D12CommandQueue: IID;
+  pub static IID_ID3D12CommandSignature: IID;
+  pub static IID_ID3D12Debug: IID;
+  pub static IID_ID3D12DebugCommandList: IID;
+  pub static IID_ID3D12DebugCommandQueue: IID;
+  pub static IID_ID3D12DebugDevice: IID;
+  pub static IID_ID3D12DescriptorHeap: IID;
+  pub static IID_ID3D12Device: IID;
+  pub static IID_ID3D12DeviceChild: IID;
+  pub static IID_ID3D12Fence: IID;
+  pub static IID_ID3D12GraphicsCommandList: IID;
+  pub static IID_ID3D12Heap: IID;
+  pub static IID_ID3D12InfoQueue: IID;
+  pub static IID_ID3D12Object: IID;
+  pub static IID_ID3D12Pageable: IID;
+  pub static IID_ID3D12PipelineState: IID;
+  pub static IID_ID3D12QueryHeap: IID;
+  pub static IID_ID3D12Resource: IID;
+  pub static IID_ID3D12RootSignature: IID;
+  pub static IID_ID3D12RootSignatureDeserializer: IID;
   pub static IID_IDXGIAdapter: IID;
   pub static IID_IDXGIAdapter1: IID;
   pub static IID_IDXGIAdapter2: IID;
