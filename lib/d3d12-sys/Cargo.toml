@@ -16,7 +16,6 @@ name = "d3d12"
 
 [dependencies]
 winapi = { version = "*", path = "../.." }
-libc = "*"
 
 [build-dependencies]
 winapi-build = { version = "*", path = "../../build" }
