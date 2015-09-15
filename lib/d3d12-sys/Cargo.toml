@@ -11,9 +11,6 @@ license = "MIT"
 build = "build.rs"
 links = "d3d12"
 
-[lib]
-name = "d3d12"
-
 [dependencies]
 winapi = { version = "*", path = "../.." }
 
