@@ -24,6 +24,7 @@ dsound-sys = { version = "*", path = "lib/dsound-sys" }
 dwmapi-sys = { version = "*", path = "lib/dwmapi-sys" }
 dwrite-sys = { version = "*", path = "lib/dwrite-sys" }
 dxgi-sys = { version = "*", path = "lib/dxgi-sys" }
+dxguid-sys = { version = "*", path = "lib/dxguid-sys" }
 gdi32-sys = { version = "*", path = "lib/gdi32-sys" }
 httpapi-sys = { version = "*", path = "lib/httpapi-sys" }
 kernel32-sys = { version = "*", path = "lib/kernel32-sys" }
