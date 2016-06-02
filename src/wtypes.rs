@@ -73,3 +73,5 @@ pub type wireBSTR = *mut ::FLAGGED_WORD_BLOB;
 pub type BSTR = *mut ::OLECHAR;
 pub type LPBSTR = *mut BSTR;
 pub type VARIANT_BOOL = ::c_short;
+pub type CLIPFORMAT = ::WORD;
+pub type HMETAFILEPICT = *mut ::c_void;

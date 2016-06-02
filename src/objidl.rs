@@ -69,3 +69,116 @@ STRUCT!{struct SOLE_AUTHENTICATION_SERVICE {
     pPrincipalName: *mut ::OLECHAR,
     hr: ::HRESULT,
 }}
+RIDL!(
+interface IPersist(IPersistVtbl): IUnknown(IUnknownVtbl) {
+    fn GetClassID(&mut self, pClassID: *mut ::CLSID) -> ::HRESULT
+});
+RIDL!(
+interface IAdviseSink2(IAdviseSink2Vtbl): IAdviseSink(IAdviseSinkVtbl) {
+    fn OnLinkSrcChange(&mut self, pmk: *mut ::IMoniker) -> ()
+});
+RIDL!(
+interface IAdviseSink(IAdviseSinkVtbl): IUnknown(IUnknownVtbl) {
+    fn OnDataChange(
+        &mut self, pFormatetc: *mut ::FORMATETC, pStgmed: *mut ::STGMEDIUM
+    ) -> (),
+    fn OnViewChange(&mut self, dwAspect: ::DWORD, lindex: ::LONG) -> (),
+    fn OnRename(&mut self, pmk: *mut ::IMoniker) -> (),
+    fn OnSave(&mut self) -> (),
+    fn OnClose(&mut self) -> ()
+});
+STRUCT!{struct FORMATETC {
+    cfFormat: ::CLIPFORMAT,
+    ptd: *mut ::DVTARGETDEVICE,
+    dwAspect: ::DWORD,
+    lindex: ::LONG,
+    tymed: ::DWORD,
+}}
+STRUCT!{struct uSTGMEDIUM {
+    tymed: ::DWORD,
+    u: ::HBITMAP,
+    pUnkForRelease: *mut ::IUnknown,
+}}
+UNION!(uSTGMEDIUM, u, pstg, pstg_mut, *mut ::IStorage);
+UNION!(uSTGMEDIUM, u, pstm, pstm_mut, *mut ::IStream);
+UNION!(uSTGMEDIUM, u, lpszFileName, lpszFileName_mut, ::LPOLESTR);
+UNION!(uSTGMEDIUM, u, hGlobal, hGlobal_mut, ::HGLOBAL);
+UNION!(uSTGMEDIUM, u, hEnhMetaFile, hEnhMetaFile_mut, ::HENHMETAFILE);
+UNION!(uSTGMEDIUM, u, hMetaFilePict, hMetaFilePict_mut, ::HMETAFILEPICT);
+UNION!(uSTGMEDIUM, u, hBitmap, hBitmap_mut, ::HBITMAP);
+STRUCT!{struct userFLAG_STGMEDIUM {
+    ContextFlags: ::LONG,
+    fPassOwnership: ::LONG,
+    Stgmed: ::userSTGMEDIUM,
+}}
+STRUCT!{struct userSTGMEDIUM {
+    pUnkForRelease: *mut ::IUnknown,
+}}
+pub type STGMEDIUM = ::uSTGMEDIUM;
+RIDL!(
+interface IStorage(IStorageVtbl): IUnknown(IUnknownVtbl) {
+    fn CreateStream(
+        &mut self, pwcsName: *const ::OLECHAR, grfMode: ::DWORD, reserved1: ::DWORD,
+        reserved2: ::DWORD, ppstm: *mut *mut ::IStream
+    ) -> ::HRESULT,
+    fn OpenStream(
+        &mut self, pwcsName: *const ::OLECHAR, reserved1: *mut ::c_void, grfMode: ::DWORD,
+        reserved2: ::DWORD, ppstm: *mut *mut ::IStream
+    ) -> ::HRESULT,
+    fn CreateStorage(
+        &mut self, pwcsName: *const ::OLECHAR, grfMode: ::DWORD, reserved1: ::DWORD,
+        reserved2: ::DWORD, ppstg: *mut *mut ::IStorage
+    ) -> ::HRESULT,
+    fn OpenStorage(
+        &mut self, pwcsName: *const ::OLECHAR, pstgPriority: *mut ::IStorage, grfMode: ::DWORD,
+        snbExclude: ::SNB, reserved: ::DWORD, ppstg: *mut *mut ::IStorage
+    ) -> ::HRESULT,
+    fn CopyTo(
+        &mut self, ciidExclude: ::DWORD, rgiidExclude: *const ::IID, snbExclude: ::SNB,
+        pstgDest: *mut ::IStorage
+    ) -> ::HRESULT,
+    fn MoveElementTo(
+        &mut self, pwcsName: *const ::OLECHAR, pstgDest: *mut ::IStorage,
+        pwcsNewName: *const ::OLECHAR, grfFlags: ::DWORD
+    ) -> ::HRESULT,
+    fn Commit(&mut self, grfCommitFlags: ::DWORD) -> ::HRESULT,
+    fn Revert(&mut self) -> ::HRESULT,
+    fn EnumElements(
+        &mut self, reserved1: ::DWORD, reserved2: *mut ::c_void, reserved3: ::DWORD,
+        ppenum: *mut *mut ::IEnumSTATSTG
+    ) -> ::HRESULT,
+    fn DestroyElement(&mut self, pwcsName: *const ::OLECHAR) -> ::HRESULT,
+    fn RenameElement(
+        &mut self, pwcsOldName: *const ::OLECHAR, pwcsNewName: *const ::OLECHAR
+    ) -> ::HRESULT,
+    fn SetElementTimes(
+        &mut self, pwcsName: *const ::OLECHAR, pctime: *const ::FILETIME,
+        patime: *const ::FILETIME, pmtime: *const ::FILETIME
+    ) -> ::HRESULT,
+    fn SetClass(&mut self, clsid: *const ::IID) -> ::HRESULT,
+    fn SetStateBits(
+        &mut self, grfStateBits: ::DWORD, grfMask: ::DWORD
+    ) -> ::HRESULT,
+    fn Stat(
+        &mut self, pstatstg: *mut ::STATSTG, grfStatFlag: ::DWORD
+    ) -> ::HRESULT
+});
+pub type LPBC = *mut ::IBindCtx;
+STRUCT!{struct DVTARGETDEVICE {
+    tdSize: ::DWORD,
+    tdDriverNameOffset: ::WORD,
+    tdDeviceNameOffset: ::WORD,
+    tdPortNameOffset: ::WORD,
+    tdExtDevmodeOffset: ::WORD,
+    tdData: [::BYTE; 1],
+}}
+pub type SNB = *mut ::LPOLESTR;
+RIDL!(
+interface IEnumSTATSTG(IEnumSTATSTGVtbl): IUnknown(IUnknownVtbl) {
+    fn Next(
+        &mut self, celt: ::ULONG, rgelt: *mut ::STATSTG, pceltFetched: *mut ::ULONG
+    ) -> ::HRESULT,
+    fn Skip(&mut self, celt: ::ULONG) -> ::HRESULT,
+    fn Reset(&mut self) -> ::HRESULT,
+    fn Clone(&mut self, ppenum: *mut *mut ::IEnumSTATSTG) -> ::HRESULT
+});

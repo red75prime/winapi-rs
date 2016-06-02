@@ -84,3 +84,14 @@ ENUM!{enum DXGI_COLOR_SPACE_TYPE {
 }}
 pub const DXGI_CENTER_MULTISAMPLE_QUALITY_PATTERN: ::UINT = 0xfffffffe;
 pub const DXGI_STANDARD_MULTISAMPLE_QUALITY_PATTERN: ::UINT = 0xffffffff;
+STRUCT!{struct DXGI_JPEG_DC_HUFFMAN_TABLE {
+    CodeCounts: [::BYTE; 12],
+    CodeValues: [::BYTE; 12],
+}}
+STRUCT!{nodebug struct DXGI_JPEG_AC_HUFFMAN_TABLE {
+    CodeCounts: [::BYTE; 16],
+    CodeValues: [::BYTE; 162],
+}}
+STRUCT!{nodebug struct DXGI_JPEG_QUANTIZATION_TABLE {
+    Elements: [::BYTE; 64],
+}}

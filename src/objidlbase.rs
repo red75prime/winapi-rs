@@ -91,3 +91,12 @@ ENUM!{enum APTTYPE {
     APTTYPE_NA = 2,
     APTTYPE_MAINSTA = 3,
 }}
+RIDL!(
+interface IEnumUnknown(IEnumUnknownVtbl): IUnknown(IUnknownVtbl) {
+    fn Next(
+        &mut self, celt: ::ULONG, rgelt: *mut *mut ::IUnknown, pceltFetched: *mut ::ULONG
+    ) -> ::HRESULT,
+    fn Skip(&mut self, celt: ::ULONG) -> ::HRESULT,
+    fn Reset(&mut self) -> ::HRESULT,
+    fn Clone(&mut self, ppenum: *mut *mut ::IEnumUnknown) -> ::HRESULT
+});
