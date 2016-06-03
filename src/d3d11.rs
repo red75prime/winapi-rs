@@ -1416,7 +1416,7 @@ RIDL!{interface ID3D11DeviceContext(ID3D11DeviceContextVtbl): ID3D11DeviceChild(
         pUAVInitialCounts: *const UINT
     ) -> (),
     fn OMSetBlendState(
-        &mut self, pBlendState: *mut ID3D11BlendState, BlendFactor: &[FLOAT; 4], SampleMask: UINT
+        &mut self, pBlendState: *mut ID3D11BlendState, BlendFactor: *const [FLOAT; 4], SampleMask: UINT
     ) -> (),
     fn OMSetDepthStencilState(
         &mut self, pDepthStencilState: *mut ID3D11DepthStencilState, StencilRef: UINT
@@ -1591,7 +1591,7 @@ RIDL!{interface ID3D11DeviceContext(ID3D11DeviceContextVtbl): ID3D11DeviceChild(
         ppUnorderedAccessViews: *mut *mut ID3D11UnorderedAccessView
     ) -> (),
     fn OMGetBlendState(
-        &mut self, ppBlendState: *mut *mut ID3D11BlendState, BlendFactor: &mut [FLOAT; 4],
+        &mut self, ppBlendState: *mut *mut ID3D11BlendState, BlendFactor: *mut [FLOAT; 4],
         pSampleMask: *mut UINT
     ) -> (),
     fn OMGetDepthStencilState(
