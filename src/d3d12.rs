@@ -2322,3 +2322,22 @@ pub type PFN_D3D12_CREATE_DEVICE = extern "system" fn (_ : *mut ::IUnknown, _ : 
 pub type PFN_D3D12_CREATE_ROOT_SIGNATURE_DESERIALIZER = extern "system" fn (pSrcData: ::LPCVOID, SrcDataSizeInBytes: ::SIZE_T, pRootSignatureDeserializerInterface: ::REFGUID, ppRootSignatureDeserializer: *mut *mut ::c_void) -> ::HRESULT;
 pub type PFN_D3D12_GET_DEBUG_INTERFACE = extern "system" fn (_ : ::REFGUID, _ : *mut *mut ::c_void) -> ::HRESULT;
 pub type PFN_D3D12_SERIALIZE_ROOT_SIGNATURE = extern "system" fn (pRootSignature: *const ::D3D12_ROOT_SIGNATURE_DESC, Version: ::D3D_ROOT_SIGNATURE_VERSION, ppBlob: *mut *mut ::ID3DBlob, ppErrorBlob: *mut *mut ::ID3DBlob) -> ::HRESULT;
+
+#[link(name="d3d12")]
+extern "system" {
+    pub fn D3D12CreateDevice(
+       pAdapter: *mut ::IUnknown, MinimumFeatureLevel: ::D3D_FEATURE_LEVEL,
+       riid: ::REFGUID, ppDevice: *mut *mut ::c_void,
+    ) -> ::HRESULT;
+    pub fn D3D12CreateRootSignatureDeserializer(
+       pSrcData: ::LPCVOID, SrcDataSizeInBytes: ::SIZE_T,
+       pRootSignatureDeserializerInterface: ::REFGUID,
+       ppRootSignatureDeserializer: *mut *mut ::c_void,
+    ) -> ::HRESULT;
+    pub fn D3D12GetDebugInterface(riid: ::REFGUID, ppvDebug: *mut *mut ::c_void) -> ::HRESULT;
+    pub fn D3D12SerializeRootSignature(
+       pRootSignature: *const ::D3D12_ROOT_SIGNATURE_DESC,
+       Version: ::D3D_ROOT_SIGNATURE_VERSION, ppBlob: *mut *mut ::ID3DBlob,
+       ppErrorBlob: *mut *mut ::ID3DBlob,
+    ) -> ::HRESULT;
+}

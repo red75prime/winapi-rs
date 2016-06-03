@@ -33,6 +33,7 @@ pub type PFN_D3D11ON12_CREATE_DEVICE =
                       _ : ::UINT, _ : *mut *mut ::ID3D11Device, _ : *mut *mut ::ID3D11DeviceContext, 
                       _ : *mut ::D3D_FEATURE_LEVEL) -> ::HRESULT;
 
+#[link(name="d3d12")]
 extern "system" {
     pub fn D3D11On12CreateDevice(pDevice: *mut ::IUnknown, Flags: ::UINT,
         pFeatureLevels: *const ::D3D_FEATURE_LEVEL, FeatureLevels: ::UINT, 
