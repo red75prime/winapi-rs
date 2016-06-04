@@ -5,7 +5,7 @@
 // copied, modified, or distributed except according to those terms.
 //! Mappings for the content of d2d1_1.h
 
-ENUM!{ enum D2D1_BITMAP_OPTIONS {
+FLAGS!{ enum D2D1_BITMAP_OPTIONS {
     D2D1_BITMAP_OPTIONS_NONE = 0,
     D2D1_BITMAP_OPTIONS_TARGET = 1,
     D2D1_BITMAP_OPTIONS_CANNOT_DRAW = 2,
