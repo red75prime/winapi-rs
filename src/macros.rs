@@ -1,9 +1,13 @@
-// Copyright © 2015, Peter Atashian
-// Licensed under the MIT License <LICENSE.md>
+// Copyright © 2015-2017 winapi-rs developers
+// Licensed under the Apache License, Version 2.0
+// <LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
+// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your option.
+// All files in the project carrying such notice may not be copied, modified, or distributed
+// except according to those terms.
 //! Macros to make things easier to define
 macro_rules! DECLARE_HANDLE {
     ($name:ident, $inner:ident) => {
-        #[allow(missing_copy_implementations)] pub enum $inner { }
+        pub enum $inner {}
         pub type $name = *mut $inner;
     };
 }
@@ -19,7 +23,7 @@ macro_rules! MAKE_SCODE {
 }
 macro_rules! HIDP_ERROR_CODES {
     ($sev:expr, $code:expr) => {
-        ($sev << 28) | (::FACILITY_HID_ERROR_CODE << 16) | $code
+        ($sev << 28) | (FACILITY_HID_ERROR_CODE << 16) | $code
     }
 }
 macro_rules! MAKEFOURCC {
@@ -27,16 +31,35 @@ macro_rules! MAKEFOURCC {
         ($a as u32) | (($b as u32) << 8) | (($c as u32) << 16) | (($d as u32) << 24)
     }
 }
+#[macro_export]
 macro_rules! DEFINE_GUID {
     (
         $name:ident, $l:expr, $w1:expr, $w2:expr,
         $b1:expr, $b2:expr, $b3:expr, $b4:expr, $b5:expr, $b6:expr, $b7:expr, $b8:expr
     ) => {
-        pub const $name: GUID = GUID {
+        pub const $name: $crate::shared::guiddef::GUID = $crate::shared::guiddef::GUID {
             Data1: $l,
             Data2: $w1,
             Data3: $w2,
             Data4: [$b1, $b2, $b3, $b4, $b5, $b6, $b7, $b8],
+        };
+    }
+}
+#[macro_export]
+macro_rules! DEFINE_DEVPROPKEY {
+    (
+        $name:ident, $l:expr, $w1:expr, $w2:expr,
+        $b1:expr, $b2:expr, $b3:expr, $b4:expr, $b5:expr, $b6:expr, $b7:expr, $b8:expr,
+        $pid:expr
+    ) => {
+        pub const $name: DEVPROPKEY = DEVPROPKEY {
+            fmtid: $crate::shared::guiddef::GUID {
+                Data1: $l,
+                Data2: $w1,
+                Data3: $w2,
+                Data4: [$b1, $b2, $b3, $b4, $b5, $b6, $b7, $b8],
+            },
+            pid: $pid,
         };
     }
 }
@@ -47,32 +70,32 @@ macro_rules! CTL_CODE {
 }
 macro_rules! HID_CTL_CODE {
     ($id:expr) => {
-        CTL_CODE!(::FILE_DEVICE_KEYBOARD, $id, ::METHOD_NEITHER, ::FILE_ANY_ACCESS)
+        CTL_CODE!(FILE_DEVICE_KEYBOARD, $id, METHOD_NEITHER, FILE_ANY_ACCESS)
     }
 }
 macro_rules! HID_BUFFER_CTL_CODE {
     ($id:expr) => {
-        CTL_CODE!(::FILE_DEVICE_KEYBOARD, $id, ::METHOD_BUFFERED, ::FILE_ANY_ACCESS)
+        CTL_CODE!(FILE_DEVICE_KEYBOARD, $id, METHOD_BUFFERED, FILE_ANY_ACCESS)
     }
 }
 macro_rules! HID_IN_CTL_CODE {
     ($id:expr) => {
-        CTL_CODE!(::FILE_DEVICE_KEYBOARD, $id, ::METHOD_IN_DIRECT, ::FILE_ANY_ACCESS)
+        CTL_CODE!(FILE_DEVICE_KEYBOARD, $id, METHOD_IN_DIRECT, FILE_ANY_ACCESS)
     }
 }
 macro_rules! HID_OUT_CTL_CODE {
     ($id:expr) => {
-        CTL_CODE!(::FILE_DEVICE_KEYBOARD, $id, ::METHOD_OUT_DIRECT, ::FILE_ANY_ACCESS)
+        CTL_CODE!(FILE_DEVICE_KEYBOARD, $id, METHOD_OUT_DIRECT, FILE_ANY_ACCESS)
     }
 }
 macro_rules! AUDCLNT_ERR {
     ($n:expr) => {
-        MAKE_HRESULT!(::SEVERITY_ERROR, ::FACILITY_AUDCLNT, $n)
+        MAKE_HRESULT!(SEVERITY_ERROR, FACILITY_AUDCLNT, $n)
     };
 }
 macro_rules! AUDCLNT_SUCCESS {
     ($n:expr) => {
-        MAKE_SCODE!(::SEVERITY_SUCCESS, ::FACILITY_AUDCLNT, $n)
+        MAKE_SCODE!(SEVERITY_SUCCESS, FACILITY_AUDCLNT, $n)
     };
 }
 macro_rules! BCRYPT_MAKE_INTERFACE_VERSION {
@@ -82,100 +105,131 @@ macro_rules! BCRYPT_MAKE_INTERFACE_VERSION {
         }
     }
 }
+#[macro_export]
 macro_rules! RIDL {
-    (interface $interface:ident ($vtbl:ident) {$(
-        fn $method:ident(&mut self $(,$p:ident : $t:ty)*) -> $rtr:ty
-    ),+}) => (
-        #[repr(C)] #[allow(missing_copy_implementations)]
+    (#[uuid($($uuid:expr),+)]
+    interface $interface:ident ($vtbl:ident) {$(
+        fn $method:ident($($p:ident : $t:ty,)*) -> $rtr:ty,
+    )+}) => (
+        #[repr(C)]
         pub struct $vtbl {
             $(pub $method: unsafe extern "system" fn(
-                This: *mut $interface
-                $(,$p: $t)*
-            ) -> $rtr),+
+                This: *mut $interface,
+                $($p: $t),*
+            ) -> $rtr,)+
         }
-        #[repr(C)] #[allow(missing_copy_implementations)]
+        #[repr(C)]
         pub struct $interface {
-            pub lpVtbl: *const $vtbl
+            pub lpVtbl: *const $vtbl,
         }
-        RIDL!{@impl $interface {$(fn $method(&mut self $(,$p: $t)*) -> $rtr),+}}
+        RIDL!{@impl $interface {$(fn $method($($p: $t,)*) -> $rtr,)+}}
+        RIDL!{@uuid $interface $($uuid),+}
     );
-    (interface $interface:ident ($vtbl:ident) : $pinterface:ident ($pvtbl:ident) {
+    (#[uuid($($uuid:expr),+)]
+    interface $interface:ident ($vtbl:ident) : $pinterface:ident ($pvtbl:ident) {
     }) => (
-        #[repr(C)] #[allow(missing_copy_implementations)]
+        #[repr(C)]
         pub struct $vtbl {
-            pub parent: $pvtbl
+            pub parent: $pvtbl,
         }
-        #[repr(C)] #[allow(missing_copy_implementations)]
+        #[repr(C)]
         pub struct $interface {
-            pub lpVtbl: *const $vtbl
+            pub lpVtbl: *const $vtbl,
         }
-        impl $crate::core::ops::Deref for $interface {
-            type Target = $pinterface;
-            #[inline]
-            fn deref(&self) -> &$pinterface {
-                unsafe { &*(self as *const _ as *const _) }
-            }
-        }
-        impl $crate::core::ops::DerefMut for $interface {
-            #[inline]
-            fn deref_mut(&mut self) -> &mut $pinterface {
-                unsafe { &mut *(self as *mut _ as *mut _) }
-            }
-        }
+        RIDL!{@deref $interface $pinterface}
+        RIDL!{@uuid $interface $($uuid),+}
     );
-    (interface $interface:ident ($vtbl:ident) : $pinterface:ident ($pvtbl:ident) {$(
-        fn $method:ident(&mut self $(,$p:ident : $t:ty)*) -> $rtr:ty
-    ),+}) => (
-        #[repr(C)] #[allow(missing_copy_implementations)]
+    (#[uuid($($uuid:expr),+)]
+    interface $interface:ident ($vtbl:ident) : $pinterface:ident ($pvtbl:ident) {$(
+        fn $method:ident($($p:ident : $t:ty,)*) -> $rtr:ty,
+    )+}) => (
+        #[repr(C)]
         pub struct $vtbl {
-            pub parent: $pvtbl
-            $(,pub $method: unsafe extern "system" fn(
-                This: *mut $interface
-                $(,$p: $t)*
-            ) -> $rtr)+
+            pub parent: $pvtbl,
+            $(pub $method: unsafe extern "system" fn(
+                This: *mut $interface,
+                $($p: $t,)*
+            ) -> $rtr,)+
         }
-        #[repr(C)] #[allow(missing_copy_implementations)]
+        #[repr(C)]
         pub struct $interface {
-            pub lpVtbl: *const $vtbl
+            pub lpVtbl: *const $vtbl,
         }
-        RIDL!{@impl $interface {$(fn $method(&mut self $(,$p: $t)*) -> $rtr),+}}
-        impl $crate::core::ops::Deref for $interface {
+        RIDL!{@impl $interface {$(fn $method($($p: $t,)*) -> $rtr,)+}}
+        RIDL!{@deref $interface $pinterface}
+        RIDL!{@uuid $interface $($uuid),+}
+    );
+    (@deref $interface:ident $pinterface:ident) => (
+        impl $crate::_core::ops::Deref for $interface {
             type Target = $pinterface;
             #[inline]
             fn deref(&self) -> &$pinterface {
-                unsafe { &*(self as *const _ as *const _) }
-            }
-        }
-        impl $crate::core::ops::DerefMut for $interface {
-            #[inline]
-            fn deref_mut(&mut self) -> &mut $pinterface {
-                unsafe { &mut *(self as *mut _ as *mut _) }
+                unsafe { &*(self as *const $interface as *const $pinterface) }
             }
         }
     );
     (@impl $interface:ident {$(
-        fn $method:ident(&mut self $(,$p:ident : $t:ty)*) -> $rtr:ty
-    ),+}) => (
+        fn $method:ident($($p:ident : $t:ty,)*) -> $rtr:ty,
+    )+}) => (
         impl $interface {
-            $(#[inline] pub unsafe fn $method(&mut self $(,$p: $t)*) -> $rtr {
-                ((*self.lpVtbl).$method)(self $(,$p)*)
+            $(#[inline] pub unsafe fn $method(&self, $($p: $t,)*) -> $rtr {
+                ((*self.lpVtbl).$method)(self as *const _ as *mut _, $($p,)*)
             })+
+        }
+    );
+    (@uuid $interface:ident
+        $l:expr, $w1:expr, $w2:expr,
+        $b1:expr, $b2:expr, $b3:expr, $b4:expr, $b5:expr, $b6:expr, $b7:expr, $b8:expr
+    ) => (
+        impl $crate::Interface for $interface {
+            #[inline]
+            fn uuidof() -> $crate::shared::guiddef::GUID {
+                $crate::shared::guiddef::GUID {
+                    Data1: $l,
+                    Data2: $w1,
+                    Data3: $w2,
+                    Data4: [$b1, $b2, $b3, $b4, $b5, $b6, $b7, $b8],
+                }
+            }
         }
     );
 }
 macro_rules! UNION {
-    ($base:ident, $field:ident, $variant:ident, $variantmut:ident, $fieldtype:ty) => {
+    ($base:ident, $field:ident, $variant:ident, $variant_mut:ident, $fieldtype:ty) => (
         impl $base {
             #[inline]
             pub unsafe fn $variant(&self) -> &$fieldtype {
-                &*(self as *const _ as *const _)
+                &*(&self.$field as *const _ as *const _)
             }
             #[inline]
-            pub unsafe fn $variantmut(&mut self) -> &mut $fieldtype {
-                &mut *(self as *mut _ as *mut _)
+            pub unsafe fn $variant_mut(&mut self) -> &mut $fieldtype {
+                &mut *(&mut self.$field as *mut _ as *mut _)
             }
         }
-    }
+    );
+}
+macro_rules! UNION2 {
+    (union $name:ident {
+        $storage:ty,
+        $($variant:ident $variant_mut:ident: $ftype:ty,)+
+    }) => (
+        pub struct $name(pub $storage);
+        impl Copy for $name {}
+        impl Clone for $name {
+            #[inline]
+            fn clone(&self) -> $name { *self }
+        }
+        impl $name {$(
+            #[inline]
+            pub unsafe fn $variant(&self) -> &$ftype {
+                &*(self as *const _ as *const $ftype)
+            }
+            #[inline]
+            pub unsafe fn $variant_mut(&mut self) -> &mut $ftype {
+                &mut *(self as *mut _ as *mut $ftype)
+            }
+        )+}
+    );
 }
 macro_rules! BITFIELD {
     ($base:ident $field:ident: $fieldtype:ty [
@@ -196,14 +250,15 @@ macro_rules! BITFIELD {
         )+}
     }
 }
+#[macro_export]
 macro_rules! ENUM {
     {enum $name:ident { $($variant:ident = $value:expr,)+ }} => {
         pub type $name = u32;
-        $(pub const $variant: u32 = $value;)+
+        $(pub const $variant: $name = $value;)+
     };
     {enum $name:ident { $variant:ident = $value:expr, $($rest:tt)* }} => {
         pub type $name = u32;
-        pub const $variant: u32 = $value;
+        pub const $variant: $name = $value;
         ENUM!{@gen $name $variant, $($rest)*}
     };
     {enum $name:ident { $variant:ident, $($rest:tt)* }} => {
@@ -219,8 +274,11 @@ macro_rules! ENUM {
         ENUM!{@gen $name $variant, $($rest)*}
     };
 }
+#[macro_export]
 macro_rules! STRUCT {
-    {$(#[$attrs:meta])* struct $name:ident { $($field:ident: $ftype:ty,)+ }} => {
+    ($(#[$attrs:meta])* struct $name:ident {
+        $($field:ident: $ftype:ty,)+
+    }) => (
         #[repr(C)] $(#[$attrs])*
         pub struct $name {
             $(pub $field: $ftype,)+
@@ -230,43 +288,22 @@ macro_rules! STRUCT {
             #[inline]
             fn clone(&self) -> $name { *self }
         }
-    };
-}
-macro_rules! EXTERN {
-    (stdcall fn $func:ident(
-        $($p:ident: $t:ty),*
-    ) -> $ret:ty) => (EXTERN!{@fix
-        extern "stdcall" {
-            pub fn $func(
-                $($p: $t),*
-            ) -> $ret;
-        }
-    });
-    (cdecl fn $func:ident(
-        $($p:ident: $t:ty),*
-    ) -> $ret:ty) => (EXTERN!{@fix
-        extern "cdecl" {
-            pub fn $func(
-                $($p: $t),*
-            ) -> $ret;
-        }
-    });
-    (@fix $x:item) => ($x);
+    );
 }
 macro_rules! IFDEF {
     ($($thing:item)*) => ($($thing)*)
 }
 macro_rules! FN {
-    (stdcall $func:ident($($t:ty),*) -> $ret:ty) => (
-        pub type $func = Option<unsafe extern "stdcall" fn($($t),*) -> $ret>;
+    (stdcall $func:ident($($t:ty,)*) -> $ret:ty) => (
+        pub type $func = Option<unsafe extern "system" fn($($t,)*) -> $ret>;
     );
-    (stdcall $func:ident($($p:ident: $t:ty),*) -> $ret:ty) => (
-        pub type $func = Option<unsafe extern "stdcall" fn($($p: $t),*) -> $ret>;
+    (stdcall $func:ident($($p:ident: $t:ty,)*) -> $ret:ty) => (
+        pub type $func = Option<unsafe extern "system" fn($($p: $t,)*) -> $ret>;
     );
-    (cdecl $func:ident($($t:ty),*) -> $ret:ty) => (
-        pub type $func = Option<unsafe extern "cdecl" fn($($t),*) -> $ret>;
+    (cdecl $func:ident($($t:ty,)*) -> $ret:ty) => (
+        pub type $func = Option<unsafe extern "C" fn($($t,)*) -> $ret>;
     );
-    (cdecl $func:ident($($p:ident: $t:ty),*) -> $ret:ty) => (
-        pub type $func = Option<unsafe extern "cdecl" fn($($p: $t),*) -> $ret>;
+    (cdecl $func:ident($($p:ident: $t:ty,)*) -> $ret:ty) => (
+        pub type $func = Option<unsafe extern "C" fn($($p: $t,)*) -> $ret>;
     );
 }

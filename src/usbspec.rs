@@ -1,5 +1,9 @@
-// Copyright © 2016, bitbegin
-// Licensed under the MIT License <LICENSE.md>
+// Copyright © 2016-2017 winapi-rs developers
+// Licensed under the Apache License, Version 2.0
+// <LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
+// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your option.
+// All files in the project carrying such notice may not be copied, modified, or distributed
+// except according to those terms.
 //! USB Spec Definitions.
 ENUM!{enum USB_DEVICE_SPEED {
     UsbLowSpeed = 0,
@@ -34,8 +38,3 @@ STRUCT!{#[repr(packed)] struct USB_CONFIGURATION_DESCRIPTOR {
     MaxPower: ::UCHAR,
 }}
 pub type PUSB_CONFIGURATION_DESCRIPTOR = *mut USB_CONFIGURATION_DESCRIPTOR;
-#[test]
-fn test_USB_CONFIGURATION_DESCRIPTOR_size() {
-    use std::mem::size_of;
-    assert_eq!(size_of::<USB_CONFIGURATION_DESCRIPTOR>(), 9)
-}
