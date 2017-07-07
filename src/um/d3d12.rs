@@ -2062,15 +2062,15 @@ interface ID3D12Device(ID3D12DeviceVtbl): ID3D12Object(ID3D12ObjectVtbl) {
         DescriptorHeapsType: D3D12_DESCRIPTOR_HEAP_TYPE,
     ) -> (),
     fn GetResourceAllocationInfo(
+        __ret_val: *mut D3D12_RESOURCE_ALLOCATION_INFO,
         visibleMask: UINT,
         numResourceDescs: UINT,
         pResourceDescs: *const D3D12_RESOURCE_DESC,
-        __ret_val: *mut D3D12_RESOURCE_ALLOCATION_INFO,
     ) -> *mut D3D12_RESOURCE_ALLOCATION_INFO,
     fn GetCustomHeapProperties(
+        __ret_val: *mut D3D12_HEAP_PROPERTIES,
         nodeMask: UINT,
         heapType: D3D12_HEAP_TYPE,
-        __ret_val: *mut D3D12_HEAP_PROPERTIES,
     ) -> *mut D3D12_HEAP_PROPERTIES,
     fn CreateCommittedResource(
         pHeapProperties: *const D3D12_HEAP_PROPERTIES,
