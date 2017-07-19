@@ -12,7 +12,7 @@ use shared::minwindef::{BOOL, DWORD, FILETIME, ULONG};
 use shared::wtypesbase::{LPOLESTR, OLECHAR};
 use um::objidlbase::{IEnumString, IStream};
 use um::unknwnbase::{IUnknown, IUnknownVtbl};
-use um::winnt::{HRESULT, ULARGE_INTEGER, VOID};
+use um::winnt::{HRESULT, ULARGE_INTEGER};
 //8402
 STRUCT!{struct BIND_OPTS {
     cbStruct: DWORD,
@@ -232,16 +232,14 @@ STRUCT!{struct SOLE_AUTHENTICATION_SERVICE {
     pPrincipalName: *mut OLECHAR,
     hr: HRESULT,
 }}
-
 RIDL!(
 #[uuid(0xa2f05a09, 0x27a2, 0x42b5, 0xbc, 0x0e, 0xac, 0x16, 0x3e, 0xf4, 0x9d, 0x9b)]
 interface IApartmentShutdown(IApartmentShutdownVtbl): IUnknown(IUnknownVtbl) {
     fn OnUninitialize(
         ui64ApartmentIdentifier: UINT64,
-    ) -> VOID,
+    ) -> (),
 }
 );
-
 RIDL!(
 #[uuid(0x00000003, 0x0000, 0x0000, 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46)]
 interface IMarshal(IMarshalVtbl): IUnknown(IUnknownVtbl) {
