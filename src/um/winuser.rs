@@ -7,22 +7,22 @@
 //! USER procedure declarations, constant definitions and macros
 use ctypes::{c_int, c_long, c_short, c_uint};
 use shared::basetsd::{
-    DWORD_PTR, INT32, INT_PTR, PDWORD_PTR, UINT16, UINT32, UINT64, UINT_PTR, ULONG_PTR,
+    DWORD_PTR, INT32, INT_PTR, PDWORD_PTR, UINT16, UINT32, UINT64, UINT_PTR, ULONG_PTR, PUINT_PTR,
 };
 #[cfg(target_arch = "x86_64")]
-use shared::basetsd::LONG_PTR;
+use shared::basetsd::{LONG_PTR};
 use shared::guiddef::{GUID, LPCGUID};
 use shared::minwindef::{
     ATOM, BOOL, BYTE, DWORD, HINSTANCE, HIWORD, HKL, HRGN, HWINSTA, INT, LOWORD, LPARAM, LPBYTE,
     LPDWORD, LPINT, LPVOID, LPWORD, LRESULT, PBYTE, PUINT, PULONG, TRUE, UCHAR, UINT, ULONG,
-    USHORT, WORD, WPARAM,
+    USHORT, WORD, WPARAM, HMODULE,
 };
 use shared::windef::{
     COLORREF, HACCEL, HBITMAP, HBRUSH, HCURSOR, HDC, HDESK, HICON, HMENU, HMONITOR,
-    HWINEVENTHOOK, HWND, LPPOINT, LPRECT, POINT, RECT,
+    HWINEVENTHOOK, HWND, LPPOINT, LPRECT, POINT, RECT, HHOOK, LPCRECT,
 };
 use um::minwinbase::LPSECURITY_ATTRIBUTES;
-use um::wingdi::{BLENDFUNCTION, DEVMODEA, DEVMODEW, LOGFONTA, LOGFONTW};
+use um::wingdi::{BLENDFUNCTION, DEVMODEA, DEVMODEW, LOGFONTA, LOGFONTW, PDISPLAY_DEVICEW, PDISPLAY_DEVICEA};
 use um::winnt::{
     ACCESS_MASK, BOOLEAN, CHAR, HANDLE, LONG, LPCSTR, LPCWSTR, LPSTR, LPWSTR, LUID,
     PSECURITY_DESCRIPTOR, PSECURITY_INFORMATION, PVOID, SHORT, VOID, WCHAR,
@@ -3873,14 +3873,6 @@ STRUCT!{struct TPMPARAMS {
 }}
 pub type LPTPMPARAMS = *mut TPMPARAMS;
 extern "system" {
-    pub fn TrackPopupMenuEx(
-        hMenu: HMENU,
-        uFlags: UINT,
-        x: INT,
-        y: INT,
-        hwnd: HWND,
-        lptpm: LPTPMPARAMS,
-    ) -> BOOL;
     pub fn CalculatePopupWindowPosition(
         anchorPoint: *const POINT,
         windowSize: *const SIZE,
