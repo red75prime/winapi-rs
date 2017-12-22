@@ -1,11 +1,15 @@
-// Copyright © 2015, Connor Hilarides
-// Licensed under the MIT License <LICENSE.md>
+// Copyright © 2015-2017 winapi-rs developers
+// Licensed under the Apache License, Version 2.0
+// <LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
+// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your option.
+// All files in the project carrying such notice may not be copied, modified, or distributed
+// except according to those terms.
 //! Mappings for the contents of wstypes.h
-use ctypes::{c_short, c_ushort, c_double};
-use shared::minwindef::{BYTE, USHORT, ULONG};
+use ctypes::{c_double, c_short, c_ushort, wchar_t};
+use shared::guiddef::{GUID};
+use shared::minwindef::{BYTE, DWORD, ULONG, USHORT, WORD};
+use shared::ntdef::{LONG, LONGLONG, ULONGLONG};
 use shared::wtypesbase::{FLAGGED_WORD_BLOB, OLECHAR};
-use um::winnt::{LONGLONG, ULONGLONG};
-
 ENUM!{enum VARENUM {
     VT_EMPTY = 0,
     VT_NULL = 1,
@@ -60,6 +64,11 @@ ENUM!{enum VARENUM {
 }}
 pub const VT_ILLEGALMASKED: VARENUM = VT_BSTR_BLOB;
 pub const VT_TYPEMASK: VARENUM = VT_BSTR_BLOB;
+pub type PROPID = ULONG;
+STRUCT!{struct PROPERTYKEY {
+    fmtid: GUID,
+    pid: DWORD,
+}}
 pub type DATE = c_double;
 STRUCT!{struct CY {
     int64: LONGLONG,
@@ -78,3 +87,14 @@ pub type wireBSTR = *mut FLAGGED_WORD_BLOB;
 pub type BSTR = *mut OLECHAR;
 pub type LPBSTR = *mut BSTR;
 pub type VARIANT_BOOL = c_short;
+UNION2!{union __MIDL_IWinTypes_0001 {
+    [usize; 1],
+    dwValue dwValue_mut: DWORD,
+    pwszName pwszName_mut: *mut wchar_t,
+}}
+STRUCT!{struct userCLIPFORMAT {
+    fContext: LONG,
+    u: __MIDL_IWinTypes_0001,
+}}
+pub type wireCLIPFORMAT = *const userCLIPFORMAT;
+pub type CLIPFORMAT = WORD;

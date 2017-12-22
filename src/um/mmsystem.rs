@@ -1,30 +1,17 @@
-// Copyright © 2015, Peter Atashian
-// Licensed under the MIT License <LICENSE.md>
+// Copyright © 2015-2017 winapi-rs developers
+// Licensed under the Apache License, Version 2.0
+// <LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
+// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your option.
+// All files in the project carrying such notice may not be copied, modified, or distributed
+// except according to those terms.
 //! MM procedure declarations, constant definitions and macros
-use shared::basetsd::{DWORD_PTR};
-use shared::minwindef::{WORD, DWORD, BYTE, UINT};
-use shared::mmreg::{WAVEFORMATEX};
-use um::winnt::{WCHAR, LPSTR};
-
+use shared::basetsd::DWORD_PTR;
+use shared::minwindef::{BYTE, DWORD, UINT, WORD};
+use shared::mmreg::WAVEFORMATEX;
+use um::winnt::{LPSTR, WCHAR};
 //109 (Win 7 SDK)
 pub type MMVERSION = UINT;
 pub type MMRESULT = UINT;
-STRUCT!{struct MMTIME {
-    wType: UINT,
-    u: MMTIME_u,
-}}
-pub type PMMTIME = *mut MMTIME;
-pub type NPMMTIME = *mut MMTIME;
-pub type LPMMTIME = *mut MMTIME;
-STRUCT!{struct MMTIME_u {
-    data: [u8; 8],
-}}
-UNION!(MMTIME_u, data, ms, ms_mut, DWORD);
-UNION!(MMTIME_u, data, sample, sample_mut, DWORD);
-UNION!(MMTIME_u, data, cb, cb_mut, DWORD);
-UNION!(MMTIME_u, data, ticks, ticks_mut, DWORD);
-UNION!(MMTIME_u, data, smpte, smpte_mut, MMTIME_smpte);
-UNION!(MMTIME_u, data, midi, midi_mut, MMTIME_midi);
 STRUCT!{struct MMTIME_smpte {
     hour: BYTE,
     min: BYTE,
@@ -37,6 +24,22 @@ STRUCT!{struct MMTIME_smpte {
 STRUCT!{struct MMTIME_midi {
     songptrpos: DWORD,
 }}
+UNION2!{union MMTIME_u {
+    [u8; 8],
+    ms ms_mut: DWORD,
+    sample sample_mut: DWORD,
+    cb cb_mut: DWORD,
+    ticks ticks_mut: DWORD,
+    smpte smpte_mut: MMTIME_smpte,
+    midi midi_mut: MMTIME_midi,
+}}
+STRUCT!{struct MMTIME {
+    wType: UINT,
+    u: MMTIME_u,
+}}
+pub type PMMTIME = *mut MMTIME;
+pub type NPMMTIME = *mut MMTIME;
+pub type LPMMTIME = *mut MMTIME;
 pub const TIME_MS: UINT = 0x0001;
 pub const TIME_SAMPLES: UINT = 0x0002;
 pub const TIME_BYTES: UINT = 0x0004;

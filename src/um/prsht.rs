@@ -1,21 +1,28 @@
-// Copyright © 2015, skdltmxn
-// Licensed under the MIT License <LICENSE.md>
+// Copyright © 2015-2017 winapi-rs developers
+// Licensed under the Apache License, Version 2.0
+// <LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
+// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your option.
+// All files in the project carrying such notice may not be copied, modified, or distributed
+// except according to those terms.
 //! Interface for the Windows Property Sheet Pages
 use ctypes::{c_int, c_short};
-use shared::basetsd::{INT_PTR};
-use shared::minwindef::{LPVOID, UINT, DWORD, HINSTANCE, WPARAM, LPARAM, LRESULT, BOOL};
-use shared::windef::{HWND, HICON, HBITMAP, HPALETTE};
-use um::winnt::{LPCSTR, LPCWSTR, HANDLE};
-use um::winuser::{DLGPROC, WM_USER, NMHDR, LPCDLGTEMPLATEA};
-
+use shared::basetsd::INT_PTR;
+use shared::minwindef::{BOOL, DWORD, HINSTANCE, LPARAM, LPVOID, LRESULT, UINT, WPARAM};
+use shared::windef::{HBITMAP, HICON, HPALETTE, HWND};
+use um::winnt::{HANDLE, LPCSTR, LPCWSTR};
+use um::winuser::{DLGPROC, LPCDLGTEMPLATEA, NMHDR, WM_USER};
 pub enum PSP {}
 pub type HPROPSHEETPAGE = *mut PSP;
-pub type LPFNPSPCALLBACKA = Option<unsafe extern "system" fn(
-    hwnd: HWND, uMsg: UINT, ppsp: *mut PROPSHEETPAGEA,
-) -> UINT>;
-pub type LPFNPSPCALLBACKW = Option<unsafe extern "system" fn(
-    hwnd: HWND, uMsg: UINT, ppsp: *mut PROPSHEETPAGEW,
-) -> UINT>;
+FN!{stdcall LPFNPSPCALLBACKA(
+    hwnd: HWND,
+    uMsg: UINT,
+    ppsp: *mut PROPSHEETPAGEA,
+) -> UINT}
+FN!{stdcall LPFNPSPCALLBACKW(
+    hwnd: HWND,
+    uMsg: UINT,
+    ppsp: *mut PROPSHEETPAGEW,
+) -> UINT}
 pub const PSP_DEFAULT: DWORD = 0x00000000;
 pub const PSP_DLGINDIRECT: DWORD = 0x00000001;
 pub const PSP_USEHICON: DWORD = 0x00000002;
@@ -116,9 +123,11 @@ pub const PSH_AEROWIZARD: DWORD = 0x00004000;
 pub const PSH_RESIZABLE: DWORD = 0x04000000;
 pub const PSH_HEADERBITMAP: DWORD = 0x08000000;
 pub const PSH_NOMARGIN: DWORD = 0x10000000;
-pub type PFNPROPSHEETCALLBACK = Option<unsafe extern "system" fn(
-    HWND, UINT, LPARAM,
-) -> c_int>;
+FN!{stdcall PFNPROPSHEETCALLBACK(
+    HWND,
+    UINT,
+    LPARAM,
+) -> c_int}
 STRUCT!{struct PROPSHEETHEADERA_V2 {
     dwSize: DWORD,
     dwFlags: DWORD,
@@ -172,12 +181,32 @@ pub type LPCPROPSHEETHEADERW = LPCPROPSHEETHEADERW_V2;
 pub const PSCB_INITIALIZED: UINT = 1;
 pub const PSCB_PRECREATE: UINT = 2;
 pub const PSCB_BUTTONPRESSED: UINT = 3;
-pub type LPFNADDPROPSHEETPAGE = Option<unsafe extern "system" fn(
-    HPROPSHEETPAGE, LPARAM,
-) -> BOOL>;
-pub type LPFNADDPROPSHEETPAGES = Option<unsafe extern "system" fn(
-    LPVOID, LPFNADDPROPSHEETPAGE, LPARAM,
-) -> BOOL>;
+extern "system" {
+    pub fn CreatePropertySheetPageA(
+        constPropSheetPagePointer: LPCPROPSHEETPAGEA,
+    ) -> HPROPSHEETPAGE;
+    pub fn CreatePropertySheetPageW(
+        constPropSheetPagePointer: LPCPROPSHEETPAGEW,
+    ) -> HPROPSHEETPAGE;
+    pub fn DestroyPropertySheetPage(
+        hPSPage: HPROPSHEETPAGE,
+    ) -> BOOL;
+    pub fn PropertySheetA(
+        lppsph: LPCPROPSHEETHEADERA,
+    ) -> INT_PTR;
+    pub fn PropertySheetW(
+        lppsph: LPCPROPSHEETHEADERW,
+    ) -> INT_PTR;
+}
+FN!{stdcall LPFNADDPROPSHEETPAGE(
+    HPROPSHEETPAGE,
+    LPARAM,
+) -> BOOL}
+FN!{stdcall LPFNADDPROPSHEETPAGES(
+    LPVOID,
+    LPFNADDPROPSHEETPAGE,
+    LPARAM,
+) -> BOOL}
 STRUCT!{struct PSHNOTIFY {
     hdr: NMHDR,
     lParam: LPARAM,
@@ -218,8 +247,9 @@ pub const PSWIZB_BACK: DWORD = 0x00000001;
 pub const PSWIZB_NEXT: DWORD = 0x00000002;
 pub const PSWIZB_FINISH: DWORD = 0x00000004;
 pub const PSWIZB_DISABLEDFINISH: DWORD = 0x00000008;
-pub const PSWIZB_CANCEL: DWORD = 0x00000008;
 pub const PSWIZBF_ELEVATIONREQUIRED: WPARAM = 0x00000001;
+pub const PSWIZB_CANCEL: DWORD = 0x00000010;
+pub const PSM_PRESSBUTTON: UINT = WM_USER + 113;
 pub const PSBTN_BACK: c_int = 0;
 pub const PSBTN_NEXT: c_int = 1;
 pub const PSBTN_FINISH: c_int = 2;
@@ -228,7 +258,6 @@ pub const PSBTN_APPLYNOW: c_int = 4;
 pub const PSBTN_CANCEL: c_int = 5;
 pub const PSBTN_HELP: c_int = 6;
 pub const PSBTN_MAX: c_int = 6;
-pub const PSM_PRESSBUTTON: UINT = WM_USER + 113;
 pub const PSM_SETCURSELID: UINT = WM_USER + 114;
 pub const PSM_SETFINISHTEXTA: UINT = WM_USER + 115;
 pub const PSM_SETFINISHTEXTW: UINT = WM_USER + 121;

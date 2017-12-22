@@ -1,14 +1,12 @@
-// Copyright © 2016 winapi-rs developers
+// Copyright © 2016-2017 winapi-rs developers
 // Licensed under the Apache License, Version 2.0
 // <LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
 // <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your option.
 // All files in the project carrying such notice may not be copied, modified, or distributed
-// except according to those terms.
+// except according to those terms
 //! This module defines the 32-Bit Windows Base APIs
 use shared::basetsd::ULONG_PTR;
-use shared::minwindef::{
-    BOOL, BYTE, DWORD, FILETIME, HMODULE, LPVOID, MAX_PATH, UINT, ULONG, WORD,
-};
+use shared::minwindef::{BOOL, BYTE, DWORD, FILETIME, HMODULE, LPVOID, MAX_PATH, UINT, ULONG, WORD};
 use shared::ntstatus::{
     STATUS_ACCESS_VIOLATION, STATUS_ARRAY_BOUNDS_EXCEEDED, STATUS_BREAKPOINT,
     STATUS_CONTROL_C_EXIT, STATUS_DATATYPE_MISALIGNMENT, STATUS_FLOAT_DENORMAL_OPERAND,
@@ -35,14 +33,21 @@ STRUCT!{struct SECURITY_ATTRIBUTES {
 }}
 pub type PSECURITY_ATTRIBUTES = *mut SECURITY_ATTRIBUTES;
 pub type LPSECURITY_ATTRIBUTES = *mut SECURITY_ATTRIBUTES;
+STRUCT!{struct OVERLAPPED_u_s {
+    Offset: DWORD,
+    OffsetHigh: DWORD,
+}}
+UNION2!{union OVERLAPPED_u {
+    [u32; 2] [u64; 1],
+    s s_mut: OVERLAPPED_u_s,
+    Pointer Pointer_mut: PVOID,
+}}
 STRUCT!{struct OVERLAPPED {
     Internal: ULONG_PTR,
     InternalHigh: ULONG_PTR,
-    Offset: DWORD,
-    OffsetHigh: DWORD,
+    u: OVERLAPPED_u,
     hEvent: HANDLE,
 }}
-UNION!(OVERLAPPED, Offset, Pointer, Pointer_mut, PVOID);
 pub type LPOVERLAPPED = *mut OVERLAPPED;
 STRUCT!{struct OVERLAPPED_ENTRY {
     lpCompletionKey: ULONG_PTR,
@@ -144,7 +149,7 @@ pub type LPCRITICAL_SECTION_DEBUG = PRTL_CRITICAL_SECTION_DEBUG;
 FN!{stdcall LPOVERLAPPED_COMPLETION_ROUTINE(
     dwErrorCode: DWORD,
     dwNumberOfBytesTransfered: DWORD,
-    lpOverlapped: LPOVERLAPPED
+    lpOverlapped: LPOVERLAPPED,
 ) -> ()}
 pub const LOCKFILE_FAIL_IMMEDIATELY: DWORD = 0x00000001;
 pub const LOCKFILE_EXCLUSIVE_LOCK: DWORD = 0x00000002;
@@ -158,15 +163,19 @@ STRUCT!{struct PROCESS_HEAP_ENTRY_Region {
     lpFirstBlock: LPVOID,
     lpLastBlock: LPVOID,
 }}
+UNION2!{union PROCESS_HEAP_ENTRY_u {
+    [u32; 4] [u64; 3],
+    Block Block_mut: PROCESS_HEAP_ENTRY_Block,
+    Region Region_mut: PROCESS_HEAP_ENTRY_Region,
+}}
 STRUCT!{struct PROCESS_HEAP_ENTRY {
     lpData: PVOID,
     cbData: DWORD,
     cbOverhead: BYTE,
     iRegionIndex: BYTE,
     wFlags: WORD,
-    Region: PROCESS_HEAP_ENTRY_Region,
+    u: PROCESS_HEAP_ENTRY_u,
 }}
-UNION!(PROCESS_HEAP_ENTRY, Region, Block, Block_mut, PROCESS_HEAP_ENTRY_Block);
 pub type LPPROCESS_HEAP_ENTRY = *mut PROCESS_HEAP_ENTRY;
 pub type PPROCESS_HEAP_ENTRY = *mut PROCESS_HEAP_ENTRY;
 pub const PROCESS_HEAP_REGION: WORD = 0x0001;
@@ -181,12 +190,16 @@ STRUCT!{struct REASON_CONTEXT_Detailed {
     ReasonStringCount: ULONG,
     ReasonStrings: *mut LPWSTR,
 }}
+UNION2!{union REASON_CONTEXT_Reason {
+    [u32; 4] [u64; 3],
+    Detailed Detailed_mut: REASON_CONTEXT_Detailed,
+    SimpleReasonString SimpleReasonString_mut: LPWSTR,
+}}
 STRUCT!{struct REASON_CONTEXT {
     Version: ULONG,
     Flags: DWORD,
-    Reason: REASON_CONTEXT_Detailed,
+    Reason: REASON_CONTEXT_Reason,
 }}
-UNION!(REASON_CONTEXT, Reason, SimpleReasonString, SimpleReasonString_mut, LPWSTR);
 pub type PREASON_CONTEXT = *mut REASON_CONTEXT;
 pub const EXCEPTION_DEBUG_EVENT: DWORD = 1;
 pub const CREATE_THREAD_DEBUG_EVENT: DWORD = 2;
@@ -198,7 +211,7 @@ pub const UNLOAD_DLL_DEBUG_EVENT: DWORD = 7;
 pub const OUTPUT_DEBUG_STRING_EVENT: DWORD = 8;
 pub const RIP_EVENT: DWORD = 9;
 FN!{stdcall PTHREAD_START_ROUTINE(
-    lpThreadParameter: LPVOID
+    lpThreadParameter: LPVOID,
 ) -> DWORD}
 pub type LPTHREAD_START_ROUTINE = PTHREAD_START_ROUTINE;
 STRUCT!{struct EXCEPTION_DEBUG_INFO {
@@ -257,31 +270,26 @@ STRUCT!{struct RIP_INFO {
     dwType: DWORD,
 }}
 pub type LPRIP_INFO = *mut RIP_INFO;
-#[cfg(target_arch="x86_64")]
+UNION2!{union DEBUG_EVENT_u {
+    [u32; 21] [u64; 20],
+    Exception Exception_mut: EXCEPTION_DEBUG_INFO,
+    CreateThread CreateThread_mut: CREATE_THREAD_DEBUG_INFO,
+    CreateProcessInfo CreateProcessInfo_mut: CREATE_PROCESS_DEBUG_INFO,
+    ExitThread ExitThread_mut: EXIT_THREAD_DEBUG_INFO,
+    ExitProcess ExitProcess_mut: EXIT_PROCESS_DEBUG_INFO,
+    LoadDll LoadDll_mut: LOAD_DLL_DEBUG_INFO,
+    UnloadDll UnloadDll_mut: UNLOAD_DLL_DEBUG_INFO,
+    DebugString DebugString_mut: OUTPUT_DEBUG_STRING_INFO,
+    RipInfo RipInfo_mut: RIP_INFO,
+}}
 STRUCT!{struct DEBUG_EVENT {
     dwDebugEventCode: DWORD,
     dwProcessId: DWORD,
     dwThreadId: DWORD,
-    u: [u64; 20],
+    u: DEBUG_EVENT_u,
 }}
-#[cfg(target_arch="x86")]
-STRUCT!{struct DEBUG_EVENT {
-    dwDebugEventCode: DWORD,
-    dwProcessId: DWORD,
-    dwThreadId: DWORD,
-    u: [u32; 21],
-}}
-UNION!(DEBUG_EVENT, u, Exception, Exception_mut, EXCEPTION_DEBUG_INFO);
-UNION!(DEBUG_EVENT, u, CreateThread, CreateThread_mut, CREATE_THREAD_DEBUG_INFO);
-UNION!(DEBUG_EVENT, u, CreateProcessInfo, CreateProcessInfo_mut, CREATE_PROCESS_DEBUG_INFO);
-UNION!(DEBUG_EVENT, u, ExitThread, ExitThread_mut, EXIT_THREAD_DEBUG_INFO);
-UNION!(DEBUG_EVENT, u, ExitProcess, ExitProcess_mut, EXIT_PROCESS_DEBUG_INFO);
-UNION!(DEBUG_EVENT, u, LoadDll, LoadDll_mut, LOAD_DLL_DEBUG_INFO);
-UNION!(DEBUG_EVENT, u, UnloadDll, UnloadDll_mut, UNLOAD_DLL_DEBUG_INFO);
-UNION!(DEBUG_EVENT, u, DebugString, DebugString_mut, OUTPUT_DEBUG_STRING_INFO);
-UNION!(DEBUG_EVENT, u, RipInfo, RipInfo_mut, RIP_INFO);
 pub type LPDEBUG_EVENT = *mut DEBUG_EVENT;
-pub type LPCNTEXT = PCONTEXT;
+pub type LPCONTEXT = PCONTEXT;
 pub const STILL_ACTIVE: DWORD = STATUS_PENDING as u32;
 pub const EXCEPTION_ACCESS_VIOLATION: DWORD = STATUS_ACCESS_VIOLATION as u32;
 pub const EXCEPTION_DATATYPE_MISALIGNMENT: DWORD = STATUS_DATATYPE_MISALIGNMENT as u32;

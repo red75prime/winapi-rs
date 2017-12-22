@@ -1,12 +1,11 @@
 language: rust
 sudo: false
 rust:
-  - 1.0.0
+  - 1.2.0
   - beta
   - nightly
 script:
   - cargo build
-  - cargo test
   - cargo doc
 notifications:
   email: false

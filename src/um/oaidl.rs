@@ -1,25 +1,33 @@
-// Copyright © 2015, Connor Hilarides
-// Licensed under the MIT License <LICENSE.md>
+// Copyright © 2015-2017 winapi-rs developers
+// Licensed under the Apache License, Version 2.0
+// <LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
+// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your option.
+// All files in the project carrying such notice may not be copied, modified, or distributed
+// except according to those terms.
 //! Mappings for the contents of OAIdl.h
-use shared::basetsd::{ULONG_PTR};
-use shared::guiddef::{REFIID, GUID, IID, REFGUID};
-use shared::minwindef::{DWORD, INT, UINT, WORD, FLOAT, BYTE, USHORT, ULONG};
+use shared::basetsd::ULONG_PTR;
+use shared::guiddef::{GUID, IID, REFGUID, REFIID};
+use shared::minwindef::{BOOL, BYTE, DWORD, FLOAT, INT, UINT, ULONG, USHORT, WORD};
+use shared::rpcndr::byte;
 use shared::wtypes::{
-    BSTR, VARIANT_BOOL, CY, DATE, wireBSTR, DECIMAL, VARTYPE, VT_BSTR, VT_UNKNOWN, VT_DISPATCH,
-    VT_VARIANT, VT_RECORD, VT_ERROR, VT_I1, VT_I2, VT_I4, VT_I8, VT_RESERVED
+    BSTR, CY, DATE, DECIMAL, VARIANT_BOOL, VARTYPE, VT_BSTR, VT_DISPATCH, VT_ERROR,
+    VT_I1, VT_I2, VT_I4, VT_I8, VT_RECORD, VT_RESERVED, VT_UNKNOWN, VT_VARIANT,
+    wireBSTR
 };
 use shared::wtypesbase::{
-    SCODE, WORD_SIZEDARR, DWORD_SIZEDARR, BYTE_SIZEDARR, HYPER_SIZEDARR, LPOLESTR, DOUBLE
+    BYTE_SIZEDARR, DOUBLE, DWORD_SIZEDARR, HYPER_SIZEDARR, LPCOLESTR, LPOLESTR, SCODE,
+    WORD_SIZEDARR
 };
 use um::unknwnbase::{IUnknown, IUnknownVtbl};
-use um::winnt::{PVOID, HRESULT, LONG, LONGLONG, ULONGLONG, CHAR, SHORT, LCID};
-
-pub type wireBRECORD = *mut _wireBRECORD;
-pub type wireVARIANT = *mut _wireVARIANT;
+use um::winnt::{CHAR, HRESULT, LCID, LONG, LONGLONG, PVOID, SHORT, ULONGLONG};
+pub type CURRENCY = CY;
 STRUCT!{struct SAFEARRAYBOUND {
     cElements: ULONG,
     lLbound: LONG,
 }}
+pub type LPSAFEARRAYBOUND = *mut SAFEARRAYBOUND;
+pub type wireBRECORD = *mut _wireBRECORD;
+pub type wireVARIANT = *mut _wireVARIANT;
 STRUCT!{struct SAFEARR_BSTR {
     Size: ULONG,
     aBstr: *mut wireBSTR,
@@ -58,30 +66,38 @@ ENUM!{enum SF_TYPE {
     SF_RECORD = VT_RECORD,
     SF_HAVEIID = VT_UNKNOWN | VT_RESERVED,
 }}
+#[cfg(target_arch = "x86")]
+UNION2!{union __MIDL_IOleAutomationTypes_0001 {
+    [u32; 6],
+    BstrStr BstrStr_mut: SAFEARR_BSTR,
+    UnknownStr UnknownStr_mut: SAFEARR_UNKNOWN,
+    DispatchStr DispatchStr_mut: SAFEARR_DISPATCH,
+    VariantStr VariantStr_mut: SAFEARR_VARIANT,
+    RecordStr RecordStr_mut: SAFEARR_BRECORD,
+    HaveIidStr HaveIidStr_mut: SAFEARR_HAVEIID,
+    ByteStr ByteStr_mut: BYTE_SIZEDARR,
+    WordStr WordStr_mut: WORD_SIZEDARR,
+    LongStr LongStr_mut: DWORD_SIZEDARR,
+    HyperStr HyperStr_mut: HYPER_SIZEDARR,
+}}
+#[cfg(target_arch = "x86_64")]
+UNION2!{union __MIDL_IOleAutomationTypes_0001 {
+    [u64; 4],
+    BstrStr BstrStr_mut: SAFEARR_BSTR,
+    UnknownStr UnknownStr_mut: SAFEARR_UNKNOWN,
+    DispatchStr DispatchStr_mut: SAFEARR_DISPATCH,
+    VariantStr VariantStr_mut: SAFEARR_VARIANT,
+    RecordStr RecordStr_mut: SAFEARR_BRECORD,
+    HaveIidStr HaveIidStr_mut: SAFEARR_HAVEIID,
+    ByteStr ByteStr_mut: BYTE_SIZEDARR,
+    WordStr WordStr_mut: WORD_SIZEDARR,
+    LongStr LongStr_mut: DWORD_SIZEDARR,
+    HyperStr HyperStr_mut: HYPER_SIZEDARR,
+}}
 STRUCT!{struct SAFEARRAYUNION {
     sfType: ULONG,
     u: __MIDL_IOleAutomationTypes_0001,
 }}
-#[cfg(target_arch = "x86_64")]
-STRUCT!{struct __MIDL_IOleAutomationTypes_0001 {
-    data0: u32,
-    data1: [u32; 6],
-}}
-#[cfg(target_arch = "x86")]
-STRUCT!{struct __MIDL_IOleAutomationTypes_0001 {
-    data0: u32,
-    data1: [u32; 5],
-}}
-UNION!(__MIDL_IOleAutomationTypes_0001, data0, BstrStr, BstrStr_mut, SAFEARR_BSTR);
-UNION!(__MIDL_IOleAutomationTypes_0001, data0, UnknownStr, UnknownStr_mut, SAFEARR_UNKNOWN);
-UNION!(__MIDL_IOleAutomationTypes_0001, data0, DispatchStr, DispatchStr_mut, SAFEARR_DISPATCH);
-UNION!(__MIDL_IOleAutomationTypes_0001, data0, VariantStr, VariantStr_mut, SAFEARR_VARIANT);
-UNION!(__MIDL_IOleAutomationTypes_0001, data0, RecordStr, RecordStr_mut, SAFEARR_BRECORD);
-UNION!(__MIDL_IOleAutomationTypes_0001, data0, HaveIidStr, HaveIidStr_mut, SAFEARR_HAVEIID);
-UNION!(__MIDL_IOleAutomationTypes_0001, data0, ByteStr, ByteStr_mut, BYTE_SIZEDARR);
-UNION!(__MIDL_IOleAutomationTypes_0001, data0, WordStr, WordStr_mut, WORD_SIZEDARR);
-UNION!(__MIDL_IOleAutomationTypes_0001, data0, LongStr, LongStr_mut, DWORD_SIZEDARR);
-UNION!(__MIDL_IOleAutomationTypes_0001, data0, HyperStr, HyperStr_mut, HYPER_SIZEDARR);
 STRUCT!{struct _wireSAFEARRAY {
     cDims: USHORT,
     fFeatures: USHORT,
@@ -113,65 +129,72 @@ pub const FADF_UNKNOWN: DWORD = 0x200;
 pub const FADF_DISPATCH: DWORD = 0x400;
 pub const FADF_VARIANT: DWORD = 0x800;
 pub const FADF_RESERVED: DWORD = 0xf008;
-#[cfg(target_arch = "x86_64")]
-STRUCT!{struct VARIANT {
-    data0: u64,
-    data1: u64,
-    data2: u64,
+STRUCT!{struct __tagBRECORD {
+    pvRecord: PVOID,
+    pRecInfo: *mut IRecordInfo,
 }}
-#[cfg(target_arch = "x86")]
-STRUCT!{struct VARIANT {
-    data0: u64,
-    data1: u32,
-    data2: u32,
+UNION2!{union VARIANT_n3 {
+    [u64; 1] [u64; 2],
+    llVal llVal_mut: LONGLONG,
+    lVal lVal_mut: LONG,
+    bVal bVal_mut: BYTE,
+    iVal iVal_mut: SHORT,
+    fltVal fltVal_mut: FLOAT,
+    dblVal dblVal_mut: DOUBLE,
+    boolVal boolVal_mut: VARIANT_BOOL,
+    scode scode_mut: SCODE,
+    cyVal cyVal_mut: CY,
+    date date_mut: DATE,
+    bstrVal bstrVal_mut: BSTR,
+    punkVal punkVal_mut: *mut IUnknown,
+    pdispVal pdispVal_mut: *mut IDispatch,
+    parray parray_mut: *mut SAFEARRAY,
+    pbVal pbVal_mut: *mut BYTE,
+    piVal piVal_mut: *mut SHORT,
+    plVal plVal_mut: *mut LONG,
+    pllVal pllVal_mut: *mut LONGLONG,
+    pfltVal pfltVal_mut: *mut FLOAT,
+    pdblVal pdblVal_mut: *mut DOUBLE,
+    pboolVal pboolVal_mut: *mut VARIANT_BOOL,
+    pscode pscode_mut: *mut SCODE,
+    pcyVal pcyVal_mut: *mut CY,
+    pdate pdate_mut: *mut DATE,
+    pbstrVal pbstrVal_mut: *mut BSTR,
+    ppunkVal ppunkVal_mut: *mut *mut IUnknown,
+    ppdispVal ppdispVal_mut: *mut *mut IDispatch,
+    pparray pparray_mut: *mut *mut SAFEARRAY,
+    pvarVal pvarVal_mut: *mut VARIANT,
+    byref byref_mut: PVOID,
+    cVal cVal_mut: CHAR,
+    uiVal uiVal_mut: USHORT,
+    ulVal ulVal_mut: ULONG,
+    ullVal ullVal_mut: ULONGLONG,
+    intVal intVal_mut: INT,
+    uintVal uintVal_mut: UINT,
+    pdecVal pdecVal_mut: *mut DECIMAL,
+    pcVal pcVal_mut: *mut CHAR,
+    puiVal puiVal_mut: *mut USHORT,
+    pulVal pulVal_mut: *mut ULONG,
+    pullVal pullVal_mut: *mut ULONGLONG,
+    pintVal pintVal_mut: *mut INT,
+    puintVal puintVal_mut: *mut UINT,
+    n4 n4_mut: __tagBRECORD,
 }}
-UNION!(VARIANT, data0, vt, vt_mut, VARTYPE);
-UNION!(VARIANT, data1, llVal, llVal_mut, LONGLONG);
-UNION!(VARIANT, data1, lVal, lVal_mut, LONG);
-UNION!(VARIANT, data1, bVal, bVal_mut, BYTE);
-UNION!(VARIANT, data1, iVal, iVal_mut, SHORT);
-UNION!(VARIANT, data1, fltVal, fltVal_mut, FLOAT);
-UNION!(VARIANT, data1, dblVal, dblVal_mut, DOUBLE);
-UNION!(VARIANT, data1, boolVal, boolVal_mut, VARIANT_BOOL);
-UNION!(VARIANT, data1, scode, scode_mut, SCODE);
-UNION!(VARIANT, data1, cyVal, cyVal_mut, CY);
-UNION!(VARIANT, data1, date, date_mut, DATE);
-UNION!(VARIANT, data1, bstrVal, bstrVal_mut, BSTR);
-UNION!(VARIANT, data1, punkVal, punkVal_mut, *mut IUnknown);
-UNION!(VARIANT, data1, pdispVal, pdispVal_mut, *mut IDispatch);
-UNION!(VARIANT, data1, parray, parray_mut, *mut SAFEARRAY);
-UNION!(VARIANT, data1, pllVal, pllVal_mut, *mut LONGLONG);
-UNION!(VARIANT, data1, plVal, plVal_mut, *mut LONG);
-UNION!(VARIANT, data1, pbVal, pbVal_mut, *mut BYTE);
-UNION!(VARIANT, data1, piVal, piVal_mut, *mut SHORT);
-UNION!(VARIANT, data1, pfltVal, pfltVal_mut, *mut FLOAT);
-UNION!(VARIANT, data1, pdblVal, pdblVal_mut, *mut DOUBLE);
-UNION!(VARIANT, data1, pboolVal, pboolVal_mut, *mut VARIANT_BOOL);
-UNION!(VARIANT, data1, pscode, pscode_mut, *mut SCODE);
-UNION!(VARIANT, data1, pcyVal, pcyVal_mut, *mut CY);
-UNION!(VARIANT, data1, pdate, pdate_mut, *mut DATE);
-UNION!(VARIANT, data1, pbstrVal, pbstrVal_mut, *mut BSTR);
-UNION!(VARIANT, data1, ppunkVal, ppunkVal_mut, *mut *mut IUnknown);
-UNION!(VARIANT, data1, ppdispVal, ppdispVal_mut, *mut *mut IDispatch);
-UNION!(VARIANT, data1, pparray, pparray_mut, *mut *mut SAFEARRAY);
-UNION!(VARIANT, data1, pvarVal, pvarVal_mut, *mut VARIANT);
-UNION!(VARIANT, data1, byref, byref_mut, PVOID);
-UNION!(VARIANT, data1, cVal, cVal_mut, CHAR);
-UNION!(VARIANT, data1, uiVal, uiVal_mut, USHORT);
-UNION!(VARIANT, data1, ulVal, ulVal_mut, ULONG);
-UNION!(VARIANT, data1, ullVal, ullVal_mut, ULONGLONG);
-UNION!(VARIANT, data1, intVal, intVal_mut, INT);
-UNION!(VARIANT, data1, uintVal, uintVal_mut, UINT);
-UNION!(VARIANT, data1, pdecVal, pdecVal_mut, *mut DECIMAL);
-UNION!(VARIANT, data1, pcVal, pcVal_mut, *mut CHAR);
-UNION!(VARIANT, data1, puiVal, puiVal_mut, *mut USHORT);
-UNION!(VARIANT, data1, pulVal, pulVal_mut, *mut ULONG);
-UNION!(VARIANT, data1, pullVal, pullVal_mut, *mut ULONGLONG);
-UNION!(VARIANT, data1, pintVal, pintVal_mut, *mut INT);
-UNION!(VARIANT, data1, puintVal, puintVal_mut, *mut UINT);
-UNION!(VARIANT, data1, pvRecord, pvRecord_mut, PVOID);
-UNION!(VARIANT, data2, pRecInfo, pRecInfo_mut, *mut IRecordInfo);
-UNION!(VARIANT, data0, decVal, decVal_mut, DECIMAL);
+STRUCT!{struct __tagVARIANT {
+    vt: VARTYPE,
+    wReserved1: WORD,
+    wReserved2: WORD,
+    wReserved3: WORD,
+    n3: VARIANT_n3,
+}}
+UNION2!{union VARIANT_n1 {
+    [u64; 2] [u64; 3],
+    n2 n2_mut: __tagVARIANT,
+    decVal decVal_mut: DECIMAL,
+}}
+STRUCT!{struct VARIANT {
+    n1: VARIANT_n1,
+}}
 pub type LPVARIANT = *mut VARIANT;
 pub type VARIANTARG = VARIANT;
 pub type LPVARIANTARG = *mut VARIANT;
@@ -180,7 +203,54 @@ STRUCT!{struct _wireBRECORD {
     fFlags: ULONG,
     clSize: ULONG,
     pRecInfo: *mut IRecordInfo,
-    pRecord: *mut BYTE,
+    pRecord: *mut byte,
+}}
+UNION2!{union _wireVARIANT_u {
+    [u64; 2],
+    llVal llVal_mut: LONGLONG,
+    lVal lVal_mut: LONG,
+    bVal bVal_mut: BYTE,
+    iVal iVal_mut: SHORT,
+    fltVal fltVal_mut: FLOAT,
+    dblVal dblVal_mut: DOUBLE,
+    boolVal boolVal_mut: VARIANT_BOOL,
+    scode scode_mut: SCODE,
+    cyVal cyVal_mut: CY,
+    date date_mut: DATE,
+    bstrVal bstrVal_mut: wireBSTR,
+    punkVal punkVal_mut: *mut IUnknown,
+    pdispVal pdispVal_mut: *mut IDispatch,
+    parray parray_mut: wirePSAFEARRAY,
+    brecVal brecVal_mut: wireBRECORD,
+    pbVal pbVal_mut: *mut BYTE,
+    piVal piVal_mut: *mut SHORT,
+    plVal plVal_mut: *mut LONG,
+    pllVal pllVal_mut: *mut LONGLONG,
+    pfltVal pfltVal_mut: *mut FLOAT,
+    pdblVal pdblVal_mut: *mut DOUBLE,
+    pboolVal pboolVal_mut: *mut VARIANT_BOOL,
+    pscode pscode_mut: *mut SCODE,
+    pcyVal pcyVal_mut: *mut CY,
+    pdate pdate_mut: *mut DATE,
+    pbstrVal pbstrVal_mut: *mut wireBSTR,
+    ppunkVal ppunkVal_mut: *mut *mut IUnknown,
+    ppdispVal ppdispVal_mut: *mut *mut IDispatch,
+    pparray pparray_mut: *mut wirePSAFEARRAY,
+    pvarVal pvarVal_mut: *mut wireVARIANT,
+    cVal cVal_mut: CHAR,
+    uiVal uiVal_mut: USHORT,
+    ulVal ulVal_mut: ULONG,
+    ullVal ullVal_mut: ULONGLONG,
+    intVal intVal_mut: INT,
+    uintVal uintVal_mut: UINT,
+    decVal decVal_mut: DECIMAL,
+    pdecVal pdecVal_mut: *mut DECIMAL,
+    pcVal pcVal_mut: *mut CHAR,
+    puiVal puiVal_mut: *mut USHORT,
+    pulVal pulVal_mut: *mut ULONG,
+    pullVal pullVal_mut: *mut ULONGLONG,
+    pintVal pintVal_mut: *mut INT,
+    puintVal puintVal_mut: *mut UINT,
 }}
 STRUCT!{struct _wireVARIANT {
     clSize: DWORD,
@@ -189,53 +259,8 @@ STRUCT!{struct _wireVARIANT {
     wReserved1: USHORT,
     wReserved2: USHORT,
     wReserved3: USHORT,
-    data0: u64,
-    data1: u64,
+    u: _wireVARIANT_u,
 }}
-UNION!(_wireVARIANT, data0, llVal, llVal_mut, LONGLONG);
-UNION!(_wireVARIANT, data0, lVal, lVal_mut, LONG);
-UNION!(_wireVARIANT, data0, bVal, bVal_mut, BYTE);
-UNION!(_wireVARIANT, data0, iVal, iVal_mut, SHORT);
-UNION!(_wireVARIANT, data0, fltVal, fltVal_mut, FLOAT);
-UNION!(_wireVARIANT, data0, dblVal, dblVal_mut, DOUBLE);
-UNION!(_wireVARIANT, data0, boolVal, boolVal_mut, VARIANT_BOOL);
-UNION!(_wireVARIANT, data0, scode, scode_mut, SCODE);
-UNION!(_wireVARIANT, data0, cyVal, cyVal_mut, CY);
-UNION!(_wireVARIANT, data0, date, date_mut, DATE);
-UNION!(_wireVARIANT, data0, bstrVal, bstrVal_mut, wireBSTR);
-UNION!(_wireVARIANT, data0, punkVal, punkVal_mut, *mut IUnknown);
-UNION!(_wireVARIANT, data0, pdispVal, pdispVal_mut, *mut IDispatch);
-UNION!(_wireVARIANT, data0, parray, parray_mut, wirePSAFEARRAY);
-UNION!(_wireVARIANT, data0, brecVal, brecVal_mut, wireBRECORD);
-UNION!(_wireVARIANT, data0, pllVal, pllVal_mut, *mut LONGLONG);
-UNION!(_wireVARIANT, data0, plVal, plVal_mut, *mut LONG);
-UNION!(_wireVARIANT, data0, pbVal, pbVal_mut, *mut BYTE);
-UNION!(_wireVARIANT, data0, piVal, piVal_mut, *mut SHORT);
-UNION!(_wireVARIANT, data0, pfltVal, pfltVal_mut, *mut FLOAT);
-UNION!(_wireVARIANT, data0, pdblVal, pdblVal_mut, *mut DOUBLE);
-UNION!(_wireVARIANT, data0, pboolVal, pboolVal_mut, *mut VARIANT_BOOL);
-UNION!(_wireVARIANT, data0, pscode, pscode_mut, *mut SCODE);
-UNION!(_wireVARIANT, data0, pcyVal, pcyVal_mut, *mut CY);
-UNION!(_wireVARIANT, data0, pdate, pdate_mut, *mut DATE);
-UNION!(_wireVARIANT, data0, pbstrVal, pbstrVal_mut, *mut wireBSTR);
-UNION!(_wireVARIANT, data0, ppunkVal, ppunkVal_mut, *mut *mut IUnknown);
-UNION!(_wireVARIANT, data0, ppdispVal, ppdispVal_mut, *mut *mut IDispatch);
-UNION!(_wireVARIANT, data0, pparray, pparray_mut, *mut wirePSAFEARRAY);
-UNION!(_wireVARIANT, data0, pvarVal, pvarVal_mut, *mut wireVARIANT);
-UNION!(_wireVARIANT, data0, cVal, cVal_mut, CHAR);
-UNION!(_wireVARIANT, data0, uiVal, uiVal_mut, USHORT);
-UNION!(_wireVARIANT, data0, ulVal, ulVal_mut, ULONG);
-UNION!(_wireVARIANT, data0, ullVal, ullVal_mut, ULONGLONG);
-UNION!(_wireVARIANT, data0, intVal, intVal_mut, INT);
-UNION!(_wireVARIANT, data0, uintVal, uintVal_mut, UINT);
-UNION!(_wireVARIANT, data0, decVal, decVal_mut, DECIMAL);
-UNION!(_wireVARIANT, data0, pcVal, pcVal_mut, *mut CHAR);
-UNION!(_wireVARIANT, data0, puiVal, puiVal_mut, *mut USHORT);
-UNION!(_wireVARIANT, data0, pulVal, pulVal_mut, *mut ULONG);
-UNION!(_wireVARIANT, data0, pullVal, pullVal_mut, *mut ULONGLONG);
-UNION!(_wireVARIANT, data0, pintVal, pintVal_mut, *mut INT);
-UNION!(_wireVARIANT, data0, puintVal, puintVal_mut, *mut UINT);
-UNION!(_wireVARIANT, data0, pdecVal, pdecVal_mut, *mut DECIMAL);
 pub type DISPID = LONG;
 pub type MEMBERID = DISPID;
 pub type HREFTYPE = DWORD;
@@ -250,19 +275,16 @@ ENUM!{enum TYPEKIND {
     TKIND_UNION,
     TKIND_MAX,
 }}
-#[cfg(target_arch = "x86_64")]
+UNION2!{union TYPEDESC_u {
+    [usize; 1],
+    lptdesc lptdesc_mut: *mut TYPEDESC,
+    lpadesc lpadesc_mut: *mut ARRAYDESC,
+    hreftype hreftype_mut: HREFTYPE,
+}}
 STRUCT!{struct TYPEDESC {
-    data: u64,
+    u: TYPEDESC_u,
     vt: VARTYPE,
 }}
-#[cfg(target_arch = "x86")]
-STRUCT!{struct TYPEDESC {
-    data: u32,
-    vt: VARTYPE,
-}}
-UNION!(TYPEDESC, data, lptdesc, lptdesc_mut, *mut TYPEDESC);
-UNION!(TYPEDESC, data, lpadesc, lpadesc_mut, *mut ARRAYDESC);
-UNION!(TYPEDESC, data, hreftype, hreftype_mut, HREFTYPE);
 STRUCT!{struct ARRAYDESC {
     tdescElem: TYPEDESC,
     cDims: USHORT,
@@ -296,11 +318,15 @@ pub const IDLFLAG_FIN: DWORD = PARAMFLAG_FIN;
 pub const IDLFLAG_FOUT: DWORD = PARAMFLAG_FOUT;
 pub const IDLFLAG_FLCID: DWORD = PARAMFLAG_FLCID;
 pub const IDLFLAG_FRETVAL: DWORD = PARAMFLAG_FRETVAL;
+UNION2!{union ELEMDESC_u {
+    [usize; 2],
+    idldesc idldesc_mut: IDLDESC,
+    paramdesc paramdesc_mut: PARAMDESC,
+}}
 STRUCT!{struct ELEMDESC {
     tdesc: TYPEDESC,
-    idldesc: IDLDESC,
+    u: ELEMDESC_u,
 }}
-UNION!(ELEMDESC, idldesc, paramdesc, paramdesc_mut, PARAMDESC);
 pub type LPELEMDESC = *mut ELEMDESC;
 STRUCT!{struct TYPEATTR {
     guid: GUID,
@@ -337,7 +363,9 @@ STRUCT!{struct EXCEPINFO {
     bstrHelpFile: BSTR,
     dwHelpContext: DWORD,
     pvReserved: PVOID,
-    pfnDeferredFillIn: Option<unsafe extern "system" fn(einfo: *mut EXCEPINFO) -> HRESULT>,
+    pfnDeferredFillIn: Option<unsafe extern "system" fn(
+        einfo: *mut EXCEPINFO,
+    ) -> HRESULT>,
     scode: SCODE,
 }}
 ENUM!{enum CALLCONV {
@@ -391,20 +419,24 @@ pub const IMPLTYPEFLAG_FDEFAULT: DWORD = 0x1;
 pub const IMPLTYPEFLAG_FSOURCE: DWORD = 0x2;
 pub const IMPLTYPEFLAG_FRESTRICTED: DWORD = 0x4;
 pub const IMPLTYPEFLAG_FDEFAULTVTABLE: DWORD = 0x8;
+UNION2!{union VARDESC_u {
+    [usize; 1],
+    oInst oInst_mut: ULONG,
+    lpvarValue lpvarValue_mut: *mut VARIANT,
+}}
 STRUCT!{struct VARDESC {
     memid: MEMBERID,
     lpstrSchema: LPOLESTR,
-    lpvarValue: *mut VARIANT,
+    u: VARDESC_u,
     elemdescVar: ELEMDESC,
     wVarFlags: WORD,
     varkind: VARKIND,
 }}
-UNION!(VARDESC, lpvarValue, oInst, oInst_mut, ULONG);
 pub type LPVARDESC = *mut VARDESC;
 ENUM!{enum TYPEFLAGS {
     TYPEFLAG_FAPPOBJECT = 0x1,
     TYPEFLAG_FCANCREATE = 0x2,
-    TYPEFLAG_FLICENSED  = 0x4,
+    TYPEFLAG_FLICENSED = 0x4,
     TYPEFLAG_FPREDECLID = 0x8,
     TYPEFLAG_FHIDDEN = 0x10,
     TYPEFLAG_FCONTROL = 0x20,
@@ -464,43 +496,93 @@ STRUCT!{struct CUSTDATA {
 }}
 pub type LPCUSTDATA = *mut CUSTDATA;
 pub type LPCREATETYPEINFO = *mut ICreateTypeInfo;
-RIDL!(
+RIDL!{#[uuid(0x00020405, 0x0000, 0x0000, 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46)]
 interface ICreateTypeInfo(ICreateTypeInfoVtbl): IUnknown(IUnknownVtbl) {
-    fn SetGuid(&mut self, guid: REFGUID) -> HRESULT,
-    fn SetTypeFlags(&mut self, uTypeFlags: UINT) -> HRESULT,
-    fn SetDocString(&mut self, pStrDoc: LPOLESTR) -> HRESULT,
-    fn SetHelpContext(&mut self, dwHelpContext: DWORD) -> HRESULT,
-    fn SetVersion(&mut self, wMajorVerNum: WORD, wMinorVerNum: WORD) -> HRESULT,
-    fn AddRefTypeInfo(&mut self, pTInfo: *mut ITypeInfo) -> HRESULT,
-    fn AddFuncDesc(&mut self, index: UINT, pFuncDesc: *mut FUNCDESC) -> HRESULT,
-    fn SetImplTypeFlags(&mut self, index: UINT, implTypeFlags: INT) -> HRESULT,
-    fn SetAlignment(&mut self, cbAlignment: WORD) -> HRESULT,
-    fn SetSchema(&mut self, pStrSchema: LPOLESTR) -> HRESULT,
-    fn AddVarDesc(&mut self, index: UINT, pVarDesc: *mut VARDESC) -> HRESULT,
+    fn SetGuid(
+        guid: REFGUID,
+    ) -> HRESULT,
+    fn SetTypeFlags(
+        uTypeFlags: UINT,
+    ) -> HRESULT,
+    fn SetDocString(
+        pStrDoc: LPOLESTR,
+    ) -> HRESULT,
+    fn SetHelpContext(
+        dwHelpContext: DWORD,
+    ) -> HRESULT,
+    fn SetVersion(
+        wMajorVerNum: WORD,
+        wMinorVerNum: WORD,
+    ) -> HRESULT,
+    fn AddRefTypeInfo(
+        pTInfo: *mut ITypeInfo,
+    ) -> HRESULT,
+    fn AddFuncDesc(
+        index: UINT,
+        pFuncDesc: *mut FUNCDESC,
+    ) -> HRESULT,
+    fn SetImplTypeFlags(
+        index: UINT,
+        implTypeFlags: INT,
+    ) -> HRESULT,
+    fn SetAlignment(
+        cbAlignment: WORD,
+    ) -> HRESULT,
+    fn SetSchema(
+        pStrSchema: LPOLESTR,
+    ) -> HRESULT,
+    fn AddVarDesc(
+        index: UINT,
+        pVarDesc: *mut VARDESC,
+    ) -> HRESULT,
     fn SetFuncAndParamNames(
-        &mut self, index: UINT, rgszNames: *mut LPOLESTR, cNames: UINT
+        index: UINT,
+        rgszNames: *mut LPOLESTR,
+        cNames: UINT,
     ) -> HRESULT,
-    fn SetVarName(&mut self, index: UINT, szName: LPOLESTR) -> HRESULT,
-    fn SetTypeDescAlias(&mut self, pTDescAlias: *mut TYPEDESC) -> HRESULT,
+    fn SetVarName(
+        index: UINT,
+        szName: LPOLESTR,
+    ) -> HRESULT,
+    fn SetTypeDescAlias(
+        pTDescAlias: *mut TYPEDESC,
+    ) -> HRESULT,
     fn DefineFuncAsDllEntry(
-        &mut self, index: UINT, szDllName: LPOLESTR, szProcName: LPOLESTR
+        index: UINT,
+        szDllName: LPOLESTR,
+        szProcName: LPOLESTR,
     ) -> HRESULT,
-    fn SetFuncDocString(&mut self, index: UINT, szDocString: LPOLESTR) -> HRESULT,
-    fn SetVarDocString(&mut self, index: UINT, szDocString: LPOLESTR) -> HRESULT,
-    fn SetFuncHelpContext(&mut self, index: UINT, dwHelpContext: DWORD) -> HRESULT,
-    fn SetVarHelpContext(&mut self, index: UINT, dwHelpContext: DWORD) -> HRESULT,
-    fn SetMops(&mut self, index: UINT, bstrMops: BSTR) -> HRESULT,
-    fn SetTypeIdldesc(&mut self, pIdlDesc: *mut IDLDESC) -> HRESULT,
-    fn LayOut(&mut self) -> HRESULT
-}
-);
-// FIXME: Implement these interfaces
-#[repr(C)] #[derive(Clone, Copy, Debug)]
-pub struct ICreateTypeInfo2;
-#[repr(C)] #[derive(Clone, Copy, Debug)]
-pub struct ICreateTypeLib;
-#[repr(C)] #[derive(Clone, Copy, Debug)]
-pub struct ICreateTypeLib2;
+    fn SetFuncDocString(
+        index: UINT,
+        szDocString: LPOLESTR,
+    ) -> HRESULT,
+    fn SetVarDocString(
+        index: UINT,
+        szDocString: LPOLESTR,
+    ) -> HRESULT,
+    fn SetFuncHelpContext(
+        index: UINT,
+        dwHelpContext: DWORD,
+    ) -> HRESULT,
+    fn SetVarHelpContext(
+        index: UINT,
+        dwHelpContext: DWORD,
+    ) -> HRESULT,
+    fn SetMops(
+        index: UINT,
+        bstrMops: BSTR,
+    ) -> HRESULT,
+    fn SetTypeIdldesc(
+        pIdlDesc: *mut IDLDESC,
+    ) -> HRESULT,
+    fn LayOut() -> HRESULT,
+}}
+// LPCREATETYPEINFO2
+// ICreateTypeInfo2
+// LPCREATETYPELIB
+// ICreateTypeLib
+// LPCREATETYPELIB2
+// ICreateTypeLib2
 pub type LPDISPATCH = *mut IDispatch;
 pub const DISPID_UNKNOWN: INT = -1;
 pub const DISPID_VALUE: INT = 0;
@@ -510,94 +592,196 @@ pub const DISPID_EVALUATE: INT = -5;
 pub const DISPID_CONSTRUCTOR: INT = -6;
 pub const DISPID_DESTRUCTOR: INT = -7;
 pub const DISPID_COLLECT: INT = -8;
-RIDL!(
+RIDL!{#[uuid(0x00020400, 0x0000, 0x0000, 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46)]
 interface IDispatch(IDispatchVtbl): IUnknown(IUnknownVtbl) {
-    fn GetTypeInfoCount(&mut self, pctinfo: *mut UINT) -> HRESULT,
+    fn GetTypeInfoCount(
+        pctinfo: *mut UINT,
+    ) -> HRESULT,
     fn GetTypeInfo(
-        &mut self, iTInfo: UINT, lcid: LCID, ppTInfo: *mut *mut ITypeInfo
+        iTInfo: UINT,
+        lcid: LCID,
+        ppTInfo: *mut *mut ITypeInfo,
     ) -> HRESULT,
     fn GetIDsOfNames(
-        &mut self, riid: REFIID, rgszNames: *mut LPOLESTR, cNames: UINT, lcid: LCID,
-        rgDispId: *mut DISPID
+        riid: REFIID,
+        rgszNames: *mut LPOLESTR,
+        cNames: UINT,
+        lcid: LCID,
+        rgDispId: *mut DISPID,
     ) -> HRESULT,
     fn Invoke(
-        &mut self, dispIdMember: DISPID, riid: REFIID, lcid: LCID, wFlags: WORD,
-        pDispParams: *mut DISPPARAMS, pVarResult: *mut VARIANT, pExcepInfo: *mut EXCEPINFO,
-        puArgErr: *mut UINT
-    ) -> HRESULT
-}
-);
-// FIXME: Implement these interfaces
-#[repr(C)] #[derive(Clone, Copy, Debug)]
-pub struct IEnumVARIANT;
-#[repr(C)] #[derive(Clone, Copy, Debug)]
-pub struct ITypeComp;
-RIDL!(
-interface ITypeInfo(ITypeInfoVtbl): IUnknown(IUnknownVtbl) {
-    fn GetTypeAttr(&mut self, ppTypeAttr: *mut *mut TYPEATTR) -> HRESULT,
-    fn GetTypeComp(&mut self, ppTComp: *mut *mut ITypeComp) -> HRESULT,
-    fn GetFuncDesc(&mut self, index: UINT, ppFunDesc: *mut *mut FUNCDESC) -> HRESULT,
-    fn GetVarDesc(&mut self, index: UINT, pPVarDesc: *mut *mut VARDESC) -> HRESULT,
-    fn GetNames(
-        &mut self, memid: MEMBERID, rgBstrNames: *mut BSTR, cMaxNames: UINT,
-        pcNames: *mut UINT
+        dispIdMember: DISPID,
+        riid: REFIID,
+        lcid: LCID,
+        wFlags: WORD,
+        pDispParams: *mut DISPPARAMS,
+        pVarResult: *mut VARIANT,
+        pExcepInfo: *mut EXCEPINFO,
+        puArgErr: *mut UINT,
     ) -> HRESULT,
-    fn GetRefTypeOfImplType(&mut self, index: UINT, pRefType: *mut HREFTYPE) -> HRESULT,
-    fn GetImplTypeFlags(&mut self, index: UINT, pImplTypeFlags: *mut INT) -> HRESULT,
-    fn GetIDsOfNames(
-        &mut self, rgszNames: *mut LPOLESTR, cNames: UINT, pMemId: *mut MEMBERID
+}}
+// IDispatch_RemoteInvoke_Proxy
+// IDispatch_RemoteInvoke_Stub
+// LPENUMVARIANT
+// IEnumVARIANT
+// IEnumVARIANT_RemoteNext_Proxy
+// IEnumVARIANT_RemoteNext_Stub
+pub enum IRecordInfo {} // FIXME
+pub enum ITypeComp {} // FIXME
+ENUM!{enum SYSKIND {
+    SYS_WIN16 = 0,
+    SYS_WIN32,
+    SYS_MAC,
+    SYS_WIN64,
+}}
+STRUCT!{struct TLIBATTR {
+    guid: GUID,
+    lcid: LCID,
+    syskind: SYSKIND,
+    wMajorVerNum: WORD,
+    wMinorVerNum: WORD,
+    wLibFlags: WORD,
+}}
+RIDL!{#[uuid(0x00020402, 0x0000, 0x0000, 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46)]
+interface ITypeLib(ITypeLibVtbl): IUnknown(IUnknownVtbl) {
+    fn GetTypeInfoCount() -> UINT,
+    fn GetTypeInfo(
+        index: UINT,
+        ppTInfo: *mut *mut ITypeInfo,
     ) -> HRESULT,
-    fn Invoke(
-        &mut self, pvInstance: PVOID, memid: MEMBERID, wFlags: WORD,
-        pDispParams: *mut DISPPARAMS, pVarResult: *mut VARIANT, pExcepInfo: *mut EXCEPINFO,
-        puArgErr: *mut UINT
+    fn GetTypeInfoType(
+        index: UINT,
+        pTKind: *mut TYPEKIND,
+    ) -> HRESULT,
+    fn GetTypeInfoOfGuid(
+        guid: REFGUID,
+        ppTInfo: *mut *mut ITypeInfo,
+    ) -> HRESULT,
+    fn GetLibAttr(
+        ppTLibAttr: *mut *mut TLIBATTR,
+    ) -> HRESULT,
+    fn GetTypeComp(
+        ppTComp: *mut *mut ITypeComp,
     ) -> HRESULT,
     fn GetDocumentation(
-        &mut self, memid: MEMBERID, pBstrName: *mut BSTR, pBstrDocString: *mut BSTR,
-        pdwHelpContext: *mut DWORD, pBstrHelpFile: *mut BSTR
+        index: INT,
+        pbstrName: *mut BSTR,
+        pBstrDocString: *mut BSTR,
+        pdwHelpContext: *mut DWORD,
+        pBstrHelpFile: *mut BSTR,
+    ) -> HRESULT,
+    fn IsName(
+        szNameBuf: LPOLESTR,
+        lHashVal: ULONG,
+        pfName: *mut BOOL,
+    ) -> HRESULT,
+    fn FindName(
+        szNameBuf: LPOLESTR,
+        lHashVal: ULONG,
+        ppTInfo: *mut *mut ITypeInfo,
+        rgMemId: *mut MEMBERID,
+        pcFound: *mut USHORT,
+    ) -> HRESULT,
+    fn ReleaseTLibAttr(
+        pTLibAttr: *const TLIBATTR,
+    ) -> HRESULT,
+}}
+RIDL!(#[uuid(0x00020401, 0x0000, 0x0000, 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46)]
+interface ITypeInfo(ITypeInfoVtbl): IUnknown(IUnknownVtbl) {
+    fn GetTypeAttr(
+        ppTypeAttr: *mut *mut TYPEATTR,
+    ) -> HRESULT,
+    fn GetTypeComp(
+        ppTComp: *mut *mut ITypeComp,
+    ) -> HRESULT,
+    fn GetFuncDesc(
+        index: UINT,
+        ppFunDesc: *mut *mut FUNCDESC,
+    ) -> HRESULT,
+    fn GetVarDesc(
+        index: UINT,
+        pPVarDesc: *mut *mut VARDESC,
+    ) -> HRESULT,
+    fn GetNames(
+        memid: MEMBERID,
+        rgBstrNames: *mut BSTR,
+        cMaxNames: UINT,
+        pcNames: *mut UINT,
+    ) -> HRESULT,
+    fn GetRefTypeOfImplType(
+        index: UINT,
+        pRefType: *mut HREFTYPE,
+    ) -> HRESULT,
+    fn GetImplTypeFlags(
+        index: UINT,
+        pImplTypeFlags: *mut INT,
+    ) -> HRESULT,
+    fn GetIDsOfNames(
+        rgszNames: *mut LPOLESTR,
+        cNames: UINT,
+        pMemId: *mut MEMBERID,
+    ) -> HRESULT,
+    fn Invoke(
+        pvInstance: PVOID,
+        memid: MEMBERID,
+        wFlags: WORD,
+        pDispParams: *mut DISPPARAMS,
+        pVarResult: *mut VARIANT,
+        pExcepInfo: *mut EXCEPINFO,
+        puArgErr: *mut UINT,
+    ) -> HRESULT,
+    fn GetDocumentation(
+        memid: MEMBERID,
+        pBstrName: *mut BSTR,
+        pBstrDocString: *mut BSTR,
+        pdwHelpContext: *mut DWORD,
+        pBstrHelpFile: *mut BSTR,
     ) -> HRESULT,
     fn GetDllEntry(
-        &mut self, memid: MEMBERID, invKind: INVOKEKIND, pBstrDllName: *mut BSTR,
-        pBstrName: *mut BSTR, pwOrdinal: *mut WORD
+        memid: MEMBERID,
+        invKind: INVOKEKIND,
+        pBstrDllName: *mut BSTR,
+        pBstrName: *mut BSTR,
+        pwOrdinal: *mut WORD,
     ) -> HRESULT,
-    fn GetRefTypeInfo(&mut self, hRefType: HREFTYPE, ppTInfo: *mut *mut ITypeInfo) -> HRESULT,
+    fn GetRefTypeInfo(
+        hRefType: HREFTYPE,
+        ppTInfo: *mut *mut ITypeInfo,
+    ) -> HRESULT,
     fn AddressOfMember(
-        &mut self, memid: MEMBERID, invKind: INVOKEKIND, ppv: *mut PVOID
+        memid: MEMBERID,
+        invKind: INVOKEKIND,
+        ppv: *mut PVOID,
     ) -> HRESULT,
     fn CreateInstance(
-        &mut self, pUnkOuter: *mut IUnknown, riid: REFIID, ppvObj: *mut PVOID
+        pUnkOuter: *mut IUnknown,
+        riid: REFIID,
+        ppvObj: *mut PVOID,
     ) -> HRESULT,
-    fn GetMops(&mut self, memid: MEMBERID, pBstrMops: *mut BSTR) -> HRESULT,
+    fn GetMops(
+        memid: MEMBERID,
+        pBstrMops: *mut BSTR,
+    ) -> HRESULT,
     fn GetContainingTypeLib(
-        &mut self, ppTLib: *mut *mut ITypeLib, pIndex: *mut UINT
+        ppTLib: *mut *mut ITypeLib,
+        pIndex: *mut UINT,
     ) -> HRESULT,
-    fn ReleaseTypeAttr(&mut self, pTypeAttr: *mut TYPEATTR) -> (),
-    fn ReleaseFuncDesc(&mut self, pFuncDesc: *mut FUNCDESC) -> (),
-    fn ReleaseVarDesc(&mut self, pVarDesc: *mut VARDESC) -> ()
+    fn ReleaseTypeAttr(
+        pTypeAttr: *mut TYPEATTR,
+    ) -> (),
+    fn ReleaseFuncDesc(
+        pFuncDesc: *mut FUNCDESC,
+    ) -> (),
+    fn ReleaseVarDesc(
+        pVarDesc: *mut VARDESC,
+    ) -> (),
 }
 );
-// FIXME: Implement these interfaces
-#[repr(C)] #[derive(Clone, Copy, Debug)]
-pub struct ITypeInfo2;
-#[repr(C)] #[derive(Clone, Copy, Debug)]
-pub struct ITypeLib;
-#[repr(C)] #[derive(Clone, Copy, Debug)]
-pub struct ITypeLib2;
-#[repr(C)] #[derive(Clone, Copy, Debug)]
-pub struct ITypeChangeEvents;
-#[repr(C)] #[derive(Clone, Copy, Debug)]
-pub struct IErrorInfo;
-#[repr(C)] #[derive(Clone, Copy, Debug)]
-pub struct ICreateErrorInfo;
-#[repr(C)] #[derive(Clone, Copy, Debug)]
-pub struct ISupportErrorInfo;
-#[repr(C)] #[derive(Clone, Copy, Debug)]
-pub struct ITypeFactory;
-#[repr(C)] #[derive(Clone, Copy, Debug)]
-pub struct ITypeMarshal;
-#[repr(C)] #[derive(Clone, Copy, Debug)]
-pub struct IRecordInfo;
-#[repr(C)] #[derive(Clone, Copy, Debug)]
-pub struct IErrorLog;
-#[repr(C)] #[derive(Clone, Copy, Debug)]
-pub struct IPropertyBag;
+RIDL!(#[uuid(0x3127ca40, 0x446e, 0x11ce, 0x81, 0x35, 0x00, 0xaa, 0x00, 0x4b, 0xb8, 0x51)]
+interface IErrorLog(IErrorLogVtbl): IUnknown(IUnknownVtbl) {
+    fn AddError(
+        pszPropName: LPCOLESTR,
+        pExcepInfo: *const EXCEPINFO,
+    ) -> HRESULT,
+});
+pub type LPERRORLOG = *mut IErrorLog;

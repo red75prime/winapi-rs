@@ -1,17 +1,20 @@
-// Copyright © 2015, Peter Atashian
-// Licensed under the MIT License <LICENSE.md>
+// Copyright © 2015-2017 winapi-rs developers
+// Licensed under the Apache License, Version 2.0
+// <LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
+// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your option.
+// All files in the project carrying such notice may not be copied, modified, or distributed
+// except according to those terms
 //! this ALWAYS GENERATED file contains the definitions for the interfaces
-use shared::basetsd::{UINT32};
-use shared::guiddef::{GUID, REFIID, LPCGUID};
-use shared::minwindef::{LPVOID, BYTE, DWORD};
-use shared::mmreg::{WAVEFORMATEX};
-use shared::winerror::{SEVERITY_SUCCESS, SEVERITY_ERROR, FACILITY_AUDCLNT};
-use shared::wtypesbase::{SCODE};
-use um::audiosessiontypes::{AUDCLNT_SHAREMODE};
-use um::strmif::{REFERENCE_TIME};
+use shared::basetsd::{UINT32, UINT64};
+use shared::guiddef::{LPCGUID, REFIID};
+use shared::minwindef::{BYTE, DWORD, LPVOID};
+use shared::mmreg::WAVEFORMATEX;
+use shared::winerror::{FACILITY_AUDCLNT, SEVERITY_ERROR, SEVERITY_SUCCESS};
+use shared::wtypesbase::SCODE;
+use um::audiosessiontypes::AUDCLNT_SHAREMODE;
+use um::strmif::REFERENCE_TIME;
 use um::unknwnbase::{IUnknown, IUnknownVtbl};
-use um::winnt::{HRESULT, HANDLE};
-
+use um::winnt::{HANDLE, HRESULT};
 //1627
 pub const AUDCLNT_E_NOT_INITIALIZED: HRESULT = AUDCLNT_ERR!(0x001);
 pub const AUDCLNT_E_ALREADY_INITIALIZED: HRESULT = AUDCLNT_ERR!(0x002);
@@ -48,35 +51,78 @@ pub const AUDCLNT_E_RAW_MODE_UNSUPPORTED: HRESULT = AUDCLNT_ERR!(0x027);
 pub const AUDCLNT_S_BUFFER_EMPTY: SCODE = AUDCLNT_SUCCESS!(0x001);
 pub const AUDCLNT_S_THREAD_ALREADY_REGISTERED: SCODE = AUDCLNT_SUCCESS!(0x002);
 pub const AUDCLNT_S_POSITION_STALLED: SCODE = AUDCLNT_SUCCESS!(0x003);
-DEFINE_GUID!(IID_IAudioClient, 0x1CB9AD4C, 0xDBFA, 0x4c32,
-    0xB1, 0x78, 0xC2, 0xF5, 0x68, 0xA7, 0x03, 0xB2);
-DEFINE_GUID!(IID_IAudioRenderClient, 0xF294ACFC, 0x3146, 0x4483,
-    0xA7, 0xBF, 0xAD, 0xDC, 0xA7, 0xC2, 0x60, 0xE2);
-RIDL!{interface IAudioClient(IAudioClientVtbl): IUnknown(IUnknownVtbl) {
+DEFINE_GUID!{IID_IAudioClient,
+    0x1CB9AD4C, 0xDBFA, 0x4c32, 0xB1, 0x78, 0xC2, 0xF5, 0x68, 0xA7, 0x03, 0xB2}
+DEFINE_GUID!{IID_IAudioRenderClient,
+    0xF294ACFC, 0x3146, 0x4483, 0xA7, 0xBF, 0xAD, 0xDC, 0xA7, 0xC2, 0x60, 0xE2}
+DEFINE_GUID!{IID_IAudioCaptureClient,
+    0xc8adbd64, 0xe71e, 0x48a0, 0xa4, 0xde, 0x18, 0x5c, 0x39, 0x5c, 0xd3, 0x17}
+RIDL!{#[uuid(0x1cb9ad4c, 0xdbfa, 0x4c32, 0xb1, 0x78, 0xc2, 0xf5, 0x68, 0xa7, 0x03, 0xb2)]
+interface IAudioClient(IAudioClientVtbl): IUnknown(IUnknownVtbl) {
     fn Initialize(
-        &mut self, ShareMode: AUDCLNT_SHAREMODE, StreamFlags: DWORD,
-        hnsBufferDuration: REFERENCE_TIME, hnsPeriodicity: REFERENCE_TIME,
-        pFormat: *const WAVEFORMATEX, AudioSessionGuid: LPCGUID
+        ShareMode: AUDCLNT_SHAREMODE,
+        StreamFlags: DWORD,
+        hnsBufferDuration: REFERENCE_TIME,
+        hnsPeriodicity: REFERENCE_TIME,
+        pFormat: *const WAVEFORMATEX,
+        AudioSessionGuid: LPCGUID,
     ) -> HRESULT,
-    fn GetBufferSize(&mut self, pNumBufferFrames: *mut UINT32) -> HRESULT,
-    fn GetStreamLatency(&mut self, phnsLatency: *mut REFERENCE_TIME) -> HRESULT,
-    fn GetCurrentPadding(&mut self, pNumPaddingFrames: *mut UINT32) -> HRESULT,
+    fn GetBufferSize(
+        pNumBufferFrames: *mut UINT32,
+    ) -> HRESULT,
+    fn GetStreamLatency(
+        phnsLatency: *mut REFERENCE_TIME,
+    ) -> HRESULT,
+    fn GetCurrentPadding(
+        pNumPaddingFrames: *mut UINT32,
+    ) -> HRESULT,
     fn IsFormatSupported(
-        &mut self, ShareMode: AUDCLNT_SHAREMODE, pFormat: *const WAVEFORMATEX,
-        ppClosestMatch: *mut *mut WAVEFORMATEX
+        ShareMode: AUDCLNT_SHAREMODE,
+        pFormat: *const WAVEFORMATEX,
+        ppClosestMatch: *mut *mut WAVEFORMATEX,
     ) -> HRESULT,
-    fn GetMixFormat(&mut self, ppDeviceFormat: *mut *mut WAVEFORMATEX) -> HRESULT,
+    fn GetMixFormat(
+        ppDeviceFormat: *mut *mut WAVEFORMATEX,
+    ) -> HRESULT,
     fn GetDevicePeriod(
-        &mut self, phnsDefaultDevicePeriod: *mut REFERENCE_TIME,
-        phnsMinimumDevicePeriod: *mut REFERENCE_TIME
+        phnsDefaultDevicePeriod: *mut REFERENCE_TIME,
+        phnsMinimumDevicePeriod: *mut REFERENCE_TIME,
     ) -> HRESULT,
-    fn Start(&mut self) -> HRESULT,
-    fn Stop(&mut self) -> HRESULT,
-    fn Reset(&mut self) -> HRESULT,
-    fn SetEventHandle(&mut self, eventHandle: HANDLE) -> HRESULT,
-    fn GetService(&mut self, riid: REFIID, ppv: *mut LPVOID) -> HRESULT
+    fn Start() -> HRESULT,
+    fn Stop() -> HRESULT,
+    fn Reset() -> HRESULT,
+    fn SetEventHandle(
+        eventHandle: HANDLE,
+    ) -> HRESULT,
+    fn GetService(
+        riid: REFIID,
+        ppv: *mut LPVOID,
+    ) -> HRESULT,
 }}
-RIDL!{interface IAudioRenderClient(IAudioRenderClientVtbl): IUnknown(IUnknownVtbl) {
-    fn GetBuffer(&mut self, NumFramesRequested: UINT32, ppData: *mut *mut BYTE) -> HRESULT,
-    fn ReleaseBuffer(&mut self, NumFramesWritten: UINT32, dwFlags: DWORD) -> HRESULT
+RIDL!{#[uuid(0xf294acfc, 0x3146, 0x4483, 0xa7, 0xbf, 0xad, 0xdc, 0xa7, 0xc2, 0x60, 0xe2)]
+interface IAudioRenderClient(IAudioRenderClientVtbl): IUnknown(IUnknownVtbl) {
+    fn GetBuffer(
+        NumFramesRequested: UINT32,
+        ppData: *mut *mut BYTE,
+    ) -> HRESULT,
+    fn ReleaseBuffer(
+        NumFramesWritten: UINT32,
+        dwFlags: DWORD,
+    ) -> HRESULT,
+}}
+RIDL!{#[uuid(0xc8adbd64, 0xe71e, 0x48a0, 0xa4, 0xde, 0x18, 0x5c, 0x39, 0x5c, 0xd3, 0x17)]
+interface IAudioCaptureClient(IAudioCaptureClientVtbl): IUnknown(IUnknownVtbl) {
+    fn GetBuffer(
+        ppData: *mut *mut BYTE,
+        pNumFramesToRead: *mut UINT32,
+        pdwFlags: *mut DWORD,
+        pu64DevicePosition: *mut UINT64,
+        pu64QPCPosition: *mut UINT64,
+    ) -> HRESULT,
+    fn ReleaseBuffer(
+        NumFramesRead: UINT32,
+    ) -> HRESULT,
+    fn GetNextPacketSize(
+        pNumFramesInNextPacket: *mut UINT32,
+    ) -> HRESULT,
 }}

@@ -1,12 +1,18 @@
-// Copyright © 2015, skdltmxn
-// Licensed under the MIT License <LICENSE.md>
+// Copyright © 2015-2017 winapi-rs developers
+// Licensed under the Apache License, Version 2.0
+// <LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
+// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your option.
+// All files in the project carrying such notice may not be copied, modified, or distributed
+// except according to those terms.
 //! HTTP API specification
-use shared::guiddef::{GUID};
-use shared::minwindef::{ULONG, USHORT, UCHAR, DWORD, PUCHAR};
-use shared::sspi::{SECURITY_STATUS};
-use um::winnt::{PWSTR, ULONGLONG, PCHAR, PCSTR, PVOID, PCWSTR, PWCHAR, HANDLE, BOOLEAN, PSECURITY_DESCRIPTOR, ULARGE_INTEGER, ANYSIZE_ARRAY};
-use um::winsock2::{PSOCKADDR, SOCKADDR_STORAGE};
-
+use shared::guiddef::GUID;
+use shared::minwindef::{DWORD, PUCHAR, UCHAR, ULONG, USHORT};
+use shared::sspi::SECURITY_STATUS;
+use shared::ws2def::{PSOCKADDR, SOCKADDR_STORAGE};
+use um::winnt::{
+    ANYSIZE_ARRAY, BOOLEAN, HANDLE, PCHAR, PCSTR, PCWSTR, PSECURITY_DESCRIPTOR, PVOID, PWCHAR,
+    PWSTR, ULARGE_INTEGER, ULONGLONG,
+};
 pub const HTTP_INITIALIZE_SERVER: ULONG = 0x00000001;
 pub const HTTP_INITIALIZE_CONFIG: ULONG = 0x00000002;
 pub const HTTP_DEMAND_CBT: ULONG = 0x00000004;
@@ -122,7 +128,7 @@ pub const HTTP_AUTH_ENABLE_DIGEST: ULONG = 0x00000002;
 pub const HTTP_AUTH_ENABLE_NTLM: ULONG = 0x00000004;
 pub const HTTP_AUTH_ENABLE_NEGOTIATE: ULONG = 0x00000008;
 pub const HTTP_AUTH_ENABLE_KERBEROS: ULONG = 0x00000010;
-pub const HTTP_AUTH_ENABLE_ALL: ULONG =  HTTP_AUTH_ENABLE_BASIC | HTTP_AUTH_ENABLE_DIGEST |
+pub const HTTP_AUTH_ENABLE_ALL: ULONG = HTTP_AUTH_ENABLE_BASIC | HTTP_AUTH_ENABLE_DIGEST |
     HTTP_AUTH_ENABLE_NTLM | HTTP_AUTH_ENABLE_NEGOTIATE | HTTP_AUTH_ENABLE_KERBEROS;
 pub const HTTP_AUTH_EX_FLAG_ENABLE_KERBEROS_CREDENTIAL_CACHING: UCHAR = 0x01;
 pub const HTTP_AUTH_EX_FLAG_CAPTURE_CREDENTIAL: UCHAR = 0x02;
@@ -300,32 +306,32 @@ pub const HTTP_VERSION_UNKNOWN: HTTP_VERSION = HTTP_VERSION { MajorVersion: 0, M
 pub const HTTP_VERSION_0_9: HTTP_VERSION = HTTP_VERSION { MajorVersion: 0, MinorVersion: 9 };
 pub const HTTP_VERSION_1_0: HTTP_VERSION = HTTP_VERSION { MajorVersion: 1, MinorVersion: 0 };
 pub const HTTP_VERSION_1_1: HTTP_VERSION = HTTP_VERSION { MajorVersion: 1, MinorVersion: 1 };
-#[inline] #[allow(dead_code)]
+#[inline]
 pub fn HTTP_SET_VERSION(mut version: HTTP_VERSION, major: USHORT, minor: USHORT) {
     version.MajorVersion = major;
     version.MinorVersion = minor;
 }
-#[inline] #[allow(dead_code)]
+#[inline]
 pub fn HTTP_EQUAL_VERSION(version: HTTP_VERSION, major: USHORT, minor: USHORT) -> bool {
     version.MajorVersion == major && version.MinorVersion == minor
 }
-#[inline] #[allow(dead_code)]
+#[inline]
 pub fn HTTP_GREATER_VERSION(version: HTTP_VERSION, major: USHORT, minor: USHORT) -> bool {
     version.MajorVersion > major || (version.MajorVersion == major && version.MinorVersion > minor)
 }
-#[inline] #[allow(dead_code)]
+#[inline]
 pub fn HTTP_LESS_VERSION(version: HTTP_VERSION, major: USHORT, minor: USHORT) -> bool {
     version.MajorVersion < major || (version.MajorVersion == major && version.MinorVersion < minor)
 }
-#[inline] #[allow(dead_code)]
+#[inline]
 pub fn HTTP_NOT_EQUAL_VERSION(version: HTTP_VERSION, major: USHORT, minor: USHORT) -> bool {
     !HTTP_EQUAL_VERSION(version, major, minor)
 }
-#[inline] #[allow(dead_code)]
+#[inline]
 pub fn HTTP_GREATER_EQUAL_VERSION(version: HTTP_VERSION, major: USHORT, minor: USHORT) -> bool {
     !HTTP_LESS_VERSION(version, major, minor)
 }
-#[inline] #[allow(dead_code)]
+#[inline]
 pub fn HTTP_LESS_EQUAL_VERSION(version: HTTP_VERSION, major: USHORT, minor: USHORT) -> bool {
     !HTTP_GREATER_VERSION(version, major, minor)
 }
@@ -487,19 +493,17 @@ STRUCT!{struct HTTP_DATA_CHUNK_FromFragmentCacheEx {
     ByteRange: HTTP_BYTE_RANGE,
     pFragmentName: PCWSTR,
 }}
+UNION2!{union HTTP_DATA_CHUNK_u {
+    [u64; 3],
+    FromMemory FromMemory_mut: HTTP_DATA_CHUNK_FromMemory,
+    FromFileHandle FromFileHandle_mut: HTTP_DATA_CHUNK_FromFileHandle,
+    FromFragmentCache FromFragmentCache_mut: HTTP_DATA_CHUNK_FromFragmentCache,
+    FromFragmentCacheEx FromFragmentCacheEx_mut: HTTP_DATA_CHUNK_FromFragmentCacheEx,
+}}
 STRUCT!{struct HTTP_DATA_CHUNK {
     DataChunkType: HTTP_DATA_CHUNK_TYPE,
-    FromFileHandle: HTTP_DATA_CHUNK_FromFileHandle,
+    u: HTTP_DATA_CHUNK_u,
 }}
-UNION!(HTTP_DATA_CHUNK, FromFileHandle, FromMemory, FromMemory_mut, HTTP_DATA_CHUNK_FromMemory);
-UNION!(
-    HTTP_DATA_CHUNK, FromFileHandle, FromFragmentCache, FromFragmentCache_mut,
-    HTTP_DATA_CHUNK_FromFragmentCache
-);
-UNION!(
-    HTTP_DATA_CHUNK, FromFileHandle, FromFragmentCacheEx, FromFragmentCacheEx_mut,
-    HTTP_DATA_CHUNK_FromFragmentCacheEx
-);
 pub type PHTTP_DATA_CHUNK = *mut HTTP_DATA_CHUNK;
 STRUCT!{struct HTTP_REQUEST_HEADERS {
     UnknownHeaderCount: USHORT,
@@ -675,28 +679,32 @@ STRUCT!{struct HTTPAPI_VERSION {
 }}
 pub type PHTTPAPI_VERSION = *mut HTTPAPI_VERSION;
 pub const HTTPAPI_VERSION_2: HTTPAPI_VERSION = HTTPAPI_VERSION {
-    HttpApiMajorVersion: 2, HttpApiMinorVersion: 0,
+    HttpApiMajorVersion: 2,
+    HttpApiMinorVersion: 0,
 };
 pub const HTTPAPI_VERSION_1: HTTPAPI_VERSION = HTTPAPI_VERSION {
-    HttpApiMajorVersion: 1, HttpApiMinorVersion: 0,
+    HttpApiMajorVersion: 1,
+    HttpApiMinorVersion: 0,
 };
-#[inline] #[allow(dead_code)]
+#[inline]
 pub fn HTTPAPI_EQUAL_VERSION(version: HTTPAPI_VERSION, major: USHORT, minor: USHORT) -> bool {
     version.HttpApiMajorVersion == major && version.HttpApiMinorVersion == minor
 }
-#[inline] #[allow(dead_code)]
+#[inline]
 pub fn HTTPAPI_GREATER_VERSION(version: HTTPAPI_VERSION, major: USHORT, minor: USHORT) -> bool {
     version.HttpApiMajorVersion > major ||
     (version.HttpApiMajorVersion == major && version.HttpApiMinorVersion > minor)
 }
-#[inline] #[allow(dead_code)]
+#[inline]
 pub fn HTTPAPI_LESS_VERSION(version: HTTPAPI_VERSION, major: USHORT, minor: USHORT) -> bool {
     version.HttpApiMajorVersion < major ||
     (version.HttpApiMajorVersion == major && version.HttpApiMinorVersion < minor)
 }
-#[inline] #[allow(dead_code)]
+#[inline]
 pub fn HTTPAPI_VERSION_GREATER_OR_EQUAL(
-    version: HTTPAPI_VERSION, major: USHORT, minor: USHORT
+    version: HTTPAPI_VERSION,
+    major: USHORT,
+    minor: USHORT
 ) -> bool {
     !HTTPAPI_LESS_VERSION(version, major, minor)
 }

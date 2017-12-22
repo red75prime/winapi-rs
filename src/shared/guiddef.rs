@@ -1,4 +1,4 @@
-// Copyright © 2016 winapi-rs developers
+// Copyright © 2016-2017 winapi-rs developers
 // Licensed under the Apache License, Version 2.0
 // <LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
 // <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your option.
@@ -6,7 +6,7 @@
 // except according to those terms.
 //! GUID definition
 // Done as of 10.0.14393.0
-use ctypes::{ c_uchar, c_ulong, c_ushort };
+use ctypes::{c_uchar, c_ulong, c_ushort};
 STRUCT!{struct GUID {
     Data1: c_ulong,
     Data2: c_ushort,
@@ -28,7 +28,11 @@ pub type REFGUID = *const GUID;
 pub type REFIID = *const IID;
 pub type REFCLSID = *const IID;
 pub type REFFMTID = *const IID;
+DEFINE_GUID!{IID_NULL,
+    0x00000000, 0x0000, 0x0000, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
 #[inline]
 pub fn IsEqualGUID(g1: &GUID, g2: &GUID) -> bool {
-    (g1.Data1, g1.Data2, g1.Data3, g1.Data4) == (g2.Data1, g2.Data2, g2.Data3, g2.Data4)
+    let a = unsafe { &*(g1 as *const _ as *const [u32; 4]) };
+    let b = unsafe { &*(g2 as *const _ as *const [u32; 4]) };
+    a[0] == b[0] && a[1] == b[1] && a[2] == b[2] && a[3] == b[3]
 }
