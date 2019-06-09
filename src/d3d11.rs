@@ -2663,3 +2663,32 @@ pub const D3D11_SDK_VERSION: DWORD = 7;
 pub fn D3D11CalcSubresource(MipSlice: ::UINT, ArraySlice: ::UINT, MipLevels: ::UINT) -> ::UINT {
     MipSlice + ArraySlice * MipLevels
 }
+
+extern "system" {
+    pub fn D3D11CreateDevice(
+        pAdapter: *mut IDXGIAdapter,
+        DriverType: D3D_DRIVER_TYPE,
+        Software: HMODULE,
+        Flags: UINT,
+        pFeatureLevels: *const D3D_FEATURE_LEVEL,
+        FeatureLevels: UINT,
+        SDKVersion: UINT,
+        ppDevice: *mut *mut ID3D11Device,
+        pFeatureLevel: *mut D3D_FEATURE_LEVEL,
+        ppImmediateContext: *mut *mut ID3D11DeviceContext,
+    ) -> HRESULT;
+    pub fn D3D11CreateDeviceAndSwapChain(
+        pAdapter: *mut IDXGIAdapter,
+        DriverType: D3D_DRIVER_TYPE,
+        Software: HMODULE,
+        Flags: UINT,
+        pFeatureLevels: *const D3D_FEATURE_LEVEL,
+        FeatureLevels: UINT,
+        SDKVersion: UINT,
+        pSwapChainDesc: *const DXGI_SWAP_CHAIN_DESC,
+        ppSwapChain: *mut *mut IDXGISwapChain,
+        ppDevice: *mut *mut ID3D11Device,
+        pFeatureLevel: *mut D3D_FEATURE_LEVEL,
+        ppImmediateContext: *mut *mut ID3D11DeviceContext,
+    ) -> HRESULT;
+}
